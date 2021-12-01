@@ -1,20 +1,17 @@
 # This Python file uses the following encoding: utf-8
-import re
 
 import tempfile
 
+import PyPDF2
 import reportlab
-from reportlab.pdfgen import canvas
+from PySide2.QtCore import QObject, Signal, Slot
+from reportlab.lib.colors import Color
+from reportlab.lib.pagesizes import A3, A4, landscape
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.pagesizes import A3, A4, landscape
-from reportlab.lib.colors import HexColor, PCMYKColor, PCMYKColorSep, Color, black, blue, red
-from reportlab.lib.styles import getSampleStyleSheet
-import PyPDF2
-from PySide2.QtCore import QObject, Signal, Slot, QThread, QTimer
+from reportlab.pdfgen import canvas
 
-
-# from EnableRTLRunner import EnableRTLRunner
+from PDFRunner import PDFRunner
 
 
 class MainWindowController(QObject):
@@ -34,14 +31,12 @@ class MainWindowController(QObject):
 
     def __init__(self):
         super().__init__()
-        self.create_horizontal_a3()
-        print("main window controller has started")
 
     def __del__(self):
         pass
 
-    def create_vertical_a4(self):
-        canvas = reportlab.pdfgen.canvas.Canvas("a4_v.pdf", pagesize=A4)
+    def create_vertical_a4(self, temp_file_name):
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=A4)
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
         canvas.setFont('Arial', 16)
@@ -56,8 +51,8 @@ class MainWindowController(QObject):
         canvas.showPage()
         canvas.save()
 
-    def create_horizontal_a4(self):
-        canvas = reportlab.pdfgen.canvas.Canvas("a4_h.pdf", pagesize=landscape(A4))
+    def create_horizontal_a4(self, temp_file_name):
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A4))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
         canvas.setFont('Arial', 16)
@@ -72,8 +67,8 @@ class MainWindowController(QObject):
         canvas.showPage()
         canvas.save()
 
-    def create_vertical_a3(self):
-        canvas = reportlab.pdfgen.canvas.Canvas("a3_v.pdf", pagesize=reportlab.lib.pagesizes.A3)
+    def create_vertical_a3(self, temp_file_name):
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=reportlab.lib.pagesizes.A3)
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
         canvas.setFont('Arial', 16)
@@ -93,8 +88,8 @@ class MainWindowController(QObject):
         canvas.showPage()
         canvas.save()
 
-    def create_horizontal_a3(self):
-        canvas = reportlab.pdfgen.canvas.Canvas("a3_h.pdf", pagesize=landscape(A3))
+    def create_horizontal_a3(self, temp_file_name):
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A3))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
         canvas.setFont('Arial', 16)
@@ -134,74 +129,72 @@ class MainWindowController(QObject):
 
             output = PyPDF2.PdfFileWriter()
 
-            watermark_pdf = PyPDF2.PdfFileReader('a3_h.pdf', 'rb')
+            with tempfile.NamedTemporaryFile() as A3_H, \
+                 tempfile.NamedTemporaryFile() as A4_V, \
+                 tempfile.NamedTemporaryFile() as A4_H, \
+                 tempfile.NamedTemporaryFile() as A3_V:
 
-            for i in range(pdfReader.getNumPages()):
+                self.create_horizontal_a3(A3_H)
+                self.create_horizontal_a4(A4_H)
+                self.create_vertical_a4(A4_V)
+                self.create_vertical_a3(A3_V)
 
-                x = pdfReader.getPage(i).mediaBox.upperRight[0]
+                A3_H_Reader = PyPDF2.PdfFileReader(A3_H, 'rb')
+                A4_v_Reader = PyPDF2.PdfFileReader(A4_V, 'rb')
+                A4_H_Reader = PyPDF2.PdfFileReader(A4_H, 'rb')
+                A3_V_Reader = PyPDF2.PdfFileReader(A3_V, 'rb')
 
-                y = pdfReader.getPage(i).mediaBox.upperRight[1]
+                A3_H_Watermark = A3_H_Reader.getPage(0)
+                A4_v_Watermark = A4_v_Reader.getPage(0)
+                A4_H_Watermark = A4_H_Reader.getPage(0)
+                A3_v_Watermark = A3_V_Reader.getPage(0)
 
-                if (int(x) == 1190) and (int(y) == 841):
+                for i in range(pdfReader.getNumPages()):
 
-                    print(i)
+                    x = pdfReader.getPage(i).mediaBox.upperRight[0]
 
-                    watermark_page = watermark_pdf.getPage(0)
+                    y = pdfReader.getPage(i).mediaBox.upperRight[1]
 
                     page_to_merge = pdfReader.getPage(i)
 
-                    page_to_merge.mergePage(watermark_page)
+                    if (int(x) == 1190) and (int(y) == 841):
+
+                        page_to_merge.mergePage(A3_H_Watermark)
+
+                    elif (int(x) == 595) and (int(y) == 841):
+
+                        page_to_merge.mergePage(A4_v_Watermark)
+
+                    elif (int(x) == 841) and (int(y) == 595):
+
+                        page_to_merge.mergePage(A4_H_Watermark)
+
+                    elif (int(x) == 841) and (int(y) == 1190):
+
+                        page_to_merge.mergePage(A3_v_Watermark)
+
+                    else:
+                        print("unknown page format")
+
+                        print('x=' + str(x) + '  y=' + str(y))
 
                     output.addPage(page_to_merge)
+
+                if ".PDF" in self.path_to_files:
+                    self.modified_file_name = self.path_to_files.replace(".PDF", "_marked.pdf")
                 else:
-                    print("unknown page format")
+                    self.modified_file_name = self.path_to_files.replace(".pdf", "_marked.pdf")
 
-                    print('x=' + str(x) + '  y=' + str(y))
+                with open(self.modified_file_name, "wb") as merged_file:
 
-            if ".PDF" in self.path_to_files:
-                self.modified_file_name = self.path_to_files.replace(".PDF", "_marked.pdf")
+                    output.write(merged_file)
 
-            else:
-                self.modified_file_name = self.path_to_files.replace(".pdf", "_marked.pdf")
-
-            with open(self.modified_file_name, "wb") as merged_file:
-
-                output.write(merged_file)
+                    self.processing_has_been_completed.emit()
 
         except Exception as e:
             print(e)
             self.files_didnt_found.emit()
 
-
-
-        # print(pdfReader.getPage(0).mediaBox.upperRight[0])
-        #
-        # pdfReader1 = PyPDF2.PdfFileReader('a3_h.pdf', 'rb')
-        #
-        # print(pdfReader1.getNumPages())
-        #
-        # print(pdfReader1.getPage(0).mediaBox)
-        #
-        # pdfReader2 = PyPDF2.PdfFileReader('a3_v.pdf', 'rb')
-        #
-        # print(pdfReader2.getNumPages())
-        #
-        # print(pdfReader2.getPage(0).mediaBox)
-        #
-        #
-        #
-        # print(pdfReader3.getNumPages())
-        #
-        # print(pdfReader3.getPage(0).mediaBox)
-
-
-        # with tempfile.NamedTemporaryFile() as tmp:
-        #
-        #     pdfWriter = PyPDF2.PdfFileWriter()
-        #
-        #     pdfWriter.addBlankPage(219, 297)
-        #
-        #     print(tmp.name)
 
         # self.directory_didnt_exist.emit()
         #
