@@ -3,45 +3,52 @@ import reportlab
 import PyPDF2
 from PySide2.QtCore import QObject, Signal, Slot, QThread
 from reportlab.lib.colors import Color
-from reportlab.lib.pagesizes import A3, A4, landscape
+from reportlab.lib.pagesizes import A3, A4, landscape, A2
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
+
 class PDFRunner(QObject):
+    files_didnt_found = Signal()
 
+    processing_has_been_completed = Signal()
 
+    page_has_been_completed = Signal()
+
+    total_quantity_of_pages = Signal(int, arguments=['total_quantity'])
 
     path_to_files = ""
 
     modified_file_name = ""
 
-    def __init__(self, path_to_directory, watermark_text):
+    list_of_files = []
+
+    watermark_text = []
+
+    def __init__(self, list_of_file, watermark_text):
 
         super().__init__()
 
+        self.list_of_files = list_of_file
+
         self.watermark_text = watermark_text
 
-    @Slot()
     def run(self):
 
-        if "file:///" in path_to_directory:
+        self.create_horizontal_a2("A2_H.pdf")
 
-            self.path_to_files = path_to_directory.replace("file:///", "")
+    """
+        if not self.list_of_files:
+
+            self.files_didnt_found.emit()
 
         else:
 
-            self.path_to_files = path_to_directory
-
-        try:
-            pdfReader = PyPDF2.PdfFileReader(self.path_to_files, 'rb')
-
-            output = PyPDF2.PdfFileWriter()
-
             with tempfile.NamedTemporaryFile() as A3_H, \
-                 tempfile.NamedTemporaryFile() as A4_V, \
-                 tempfile.NamedTemporaryFile() as A4_H, \
-                 tempfile.NamedTemporaryFile() as A3_V:
+                    tempfile.NamedTemporaryFile() as A4_V, \
+                    tempfile.NamedTemporaryFile() as A4_H, \
+                    tempfile.NamedTemporaryFile() as A3_V:
 
                 self.create_horizontal_a3(A3_H)
                 self.create_horizontal_a4(A4_H)
@@ -58,51 +65,67 @@ class PDFRunner(QObject):
                 A4_H_Watermark = A4_H_Reader.getPage(0)
                 A3_v_Watermark = A3_V_Reader.getPage(0)
 
-                for i in range(pdfReader.getNumPages()):
+                for path_to_files in self.list_of_files:
 
-                    x = pdfReader.getPage(i).mediaBox.upperRight[0]
+                    print(path_to_files)
 
-                    y = pdfReader.getPage(i).mediaBox.upperRight[1]
+                    try:
+                        pdfReader = PyPDF2.PdfFileReader(path_to_files, 'rb')
 
-                    page_to_merge = pdfReader.getPage(i)
+                        output = PyPDF2.PdfFileWriter()
 
-                    if (int(x) == 1190) and (int(y) == 841):
+                        for i in range(pdfReader.getNumPages()):
 
-                        page_to_merge.mergePage(A3_H_Watermark)
+                            x = pdfReader.getPage(i).mediaBox.upperRight[0]
 
-                    elif (int(x) == 595) and (int(y) == 841):
+                            y = pdfReader.getPage(i).mediaBox.upperRight[1]
 
-                        page_to_merge.mergePage(A4_v_Watermark)
+                            page_to_merge = pdfReader.getPage(i)
 
-                    elif (int(x) == 841) and (int(y) == 595):
+                            if ((int(x) >= 1190) and (int(x) <= 1200)) and ((int(y) >= 840) and (int(y) <= 850)):
 
-                        page_to_merge.mergePage(A4_H_Watermark)
+                                page_to_merge.mergePage(A3_H_Watermark)
 
-                    elif (int(x) == 841) and (int(y) == 1190):
+                            elif ((int(x) >= 590) and (int(x) <= 600)) and ((int(y) >= 840) and (int(y) <= 850)):
 
-                        page_to_merge.mergePage(A3_v_Watermark)
+                                page_to_merge.mergePage(A4_v_Watermark)
 
-                    else:
-                        print("unknown page format")
+                            elif ((int(x) >= 840) and (int(x) <= 850)) and ((int(y) >= 590) and (int(y) <= 600)) :
 
-                        print('x=' + str(x) + '  y=' + str(y))
+                                page_to_merge.mergePage(A4_H_Watermark)
 
-                    output.addPage(page_to_merge)
+                            elif ((int(x) >= 840) and (int(x) <= 850)) and ((int(y) >= 1190) and (int(y) <= 1200)):
 
-                if ".PDF" in self.path_to_files:
-                    self.modified_file_name = self.path_to_files.replace(".PDF", "_marked.pdf")
-                else:
-                    self.modified_file_name = self.path_to_files.replace(".pdf", "_marked.pdf")
+                                page_to_merge.mergePage(A3_v_Watermark)
 
-                with open(self.modified_file_name, "wb") as merged_file:
+                            elif ((int(x) >= 1680) and (int(x) <= 1690)) and ((int(y) >= 1190) and (int(y) <= 1200)):
 
-                    output.write(merged_file)
+                                print("A2 horizontal format")
 
-                    self.processing_has_been_completed.emit()
+                            else:
+                                print("unknown page format")
 
-        except Exception as e:
-            print(e)
-            self.files_didnt_found.emit()
+                                print('x=' + str(x) + '  y=' + str(y))
+
+                                continue
+
+                            output.addPage(page_to_merge)
+
+                            if ".PDF" in path_to_files:
+                                self.modified_file_name = path_to_files.replace(".PDF", "_marked.pdf")
+                            else:
+                                self.modified_file_name = path_to_files.replace(".pdf", "_marked.pdf")
+
+                            with open(self.modified_file_name, "wb") as merged_file:
+
+                                output.write(merged_file)
+
+                                self.processing_has_been_completed.emit()
+
+                    except Exception as e:
+                        print(e)
+                        self.files_didnt_found.emit()
+    """
 
     def create_vertical_a4(self, temp_file_name):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=A4)
@@ -111,12 +134,12 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', 16)
         font_color = Color(0, 0, 0, alpha=0.25)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=600, y=300, text=self.useful_text[0])
-        canvas.drawCentredString(x=600, y=280, text=self.useful_text[1])
-        canvas.drawCentredString(x=600, y=260, text=self.useful_text[2])
-        canvas.drawCentredString(x=420, y=-100, text=self.useful_text[0])
-        canvas.drawCentredString(x=420, y=-120, text=self.useful_text[1])
-        canvas.drawCentredString(x=420, y=-140, text=self.useful_text[2])
+        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
+        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
+        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
+        canvas.drawCentredString(x=420, y=-100, text=self.watermark_text[0])
+        canvas.drawCentredString(x=420, y=-120, text=self.watermark_text[1])
+        canvas.drawCentredString(x=420, y=-140, text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -127,12 +150,12 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', 16)
         font_color = Color(0, 0, 0, alpha=0.5)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=420, y=140, text=self.useful_text[0])
-        canvas.drawCentredString(x=420, y=120, text=self.useful_text[1])
-        canvas.drawCentredString(x=420, y=100, text=self.useful_text[2])
-        canvas.drawCentredString(x=580, y=-260, text=self.useful_text[0])
-        canvas.drawCentredString(x=580, y=-280, text=self.useful_text[1])
-        canvas.drawCentredString(x=580, y=-300, text=self.useful_text[2])
+        canvas.drawCentredString(x=420, y=140, text=self.watermark_text[0])
+        canvas.drawCentredString(x=420, y=120, text=self.watermark_text[1])
+        canvas.drawCentredString(x=420, y=100, text=self.watermark_text[2])
+        canvas.drawCentredString(x=580, y=-260, text=self.watermark_text[0])
+        canvas.drawCentredString(x=580, y=-280, text=self.watermark_text[1])
+        canvas.drawCentredString(x=580, y=-300, text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -143,17 +166,17 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', 16)
         font_color = Color(0, 0, 0, alpha=0.5)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=840, y=540, text=self.useful_text[0])
-        canvas.drawCentredString(x=840, y=520, text=self.useful_text[1])
-        canvas.drawCentredString(x=840, y=500, text=self.useful_text[2])
+        canvas.drawCentredString(x=840, y=540, text=self.watermark_text[0])
+        canvas.drawCentredString(x=840, y=520, text=self.watermark_text[1])
+        canvas.drawCentredString(x=840, y=500, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=700, y=160, text=self.useful_text[0])
-        canvas.drawCentredString(x=700, y=140, text=self.useful_text[1])
-        canvas.drawCentredString(x=700, y=120, text=self.useful_text[2])
+        canvas.drawCentredString(x=700, y=160, text=self.watermark_text[0])
+        canvas.drawCentredString(x=700, y=140, text=self.watermark_text[1])
+        canvas.drawCentredString(x=700, y=120, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=600, y=-260, text=self.useful_text[0])
-        canvas.drawCentredString(x=600, y=-280, text=self.useful_text[1])
-        canvas.drawCentredString(x=600, y=-300, text=self.useful_text[2])
+        canvas.drawCentredString(x=600, y=-260, text=self.watermark_text[0])
+        canvas.drawCentredString(x=600, y=-280, text=self.watermark_text[1])
+        canvas.drawCentredString(x=600, y=-300, text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -165,17 +188,41 @@ class PDFRunner(QObject):
         font_color = Color(0, 0, 0, alpha=0.5)
         canvas.setFillColor(font_color)
 
-        canvas.drawCentredString(x=600, y=300, text=self.useful_text[0])
-        canvas.drawCentredString(x=600, y=280, text=self.useful_text[1])
-        canvas.drawCentredString(x=600, y=260, text=self.useful_text[2])
+        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
+        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
+        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=840, y=-520, text=self.useful_text[0])
-        canvas.drawCentredString(x=840, y=-540, text=self.useful_text[1])
-        canvas.drawCentredString(x=840, y=-560, text=self.useful_text[2])
+        canvas.drawCentredString(x=840, y=-520, text=self.watermark_text[0])
+        canvas.drawCentredString(x=840, y=-540, text=self.watermark_text[1])
+        canvas.drawCentredString(x=840, y=-560, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=740, y=-120, text=self.useful_text[0])
-        canvas.drawCentredString(x=740, y=-140, text=self.useful_text[1])
-        canvas.drawCentredString(x=740, y=-160, text=self.useful_text[2])
+        canvas.drawCentredString(x=740, y=-120, text=self.watermark_text[0])
+        canvas.drawCentredString(x=740, y=-140, text=self.watermark_text[1])
+        canvas.drawCentredString(x=740, y=-160, text=self.watermark_text[2])
+
+        canvas.showPage()
+        canvas.save()
+
+    def create_horizontal_a2(self, temp_file_name):
+        print(temp_file_name)
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A2))
+        canvas.rotate(45)
+        pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
+        canvas.setFont('Arial', 16)
+        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFillColor(font_color)
+
+        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
+        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
+        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
+
+        canvas.drawCentredString(x=840, y=-520, text=self.watermark_text[0])
+        canvas.drawCentredString(x=840, y=-540, text=self.watermark_text[1])
+        canvas.drawCentredString(x=840, y=-560, text=self.watermark_text[2])
+
+        canvas.drawCentredString(x=740, y=-120, text=self.watermark_text[0])
+        canvas.drawCentredString(x=740, y=-140, text=self.watermark_text[1])
+        canvas.drawCentredString(x=740, y=-160, text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()

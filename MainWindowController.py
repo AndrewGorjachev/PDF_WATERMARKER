@@ -1,10 +1,12 @@
 # This Python file uses the following encoding: utf-8
 
 import configparser
-import glob
+import glob as glob
 import os
 
 from PySide2.QtCore import QObject, Signal, Slot, QThread, QTimer
+
+import PDFRunner as PDFRunner
 
 
 class MainWindowController(QObject):
@@ -38,29 +40,41 @@ class MainWindowController(QObject):
     def __del__(self):
         pass
 
-
     @Slot(str, str)
     def process_pdfs(self, path_to_directory, watermark_text):
 
-        print(path_to_directory)
+        if str(path_to_directory).startswith("file:///"):
 
-        txtfiles = []
-        for file in glob.glob(path_to_directory, "*.txt"):
-            print(file)
-            txtfiles.append(file)
+            pdffiles = []
 
-        #for path, subdirs, files in os.walk(path_to_directory):
+            for file in glob.glob(path_to_directory.replace("file:///", "") + '/**/*.pdf', recursive=True):
 
+                buff = file.replace("\\", '/')
 
-            # for name in files:
-            #     if fnmatch(name, pattern):
-            #         print
-            #         os.path.join(path, name)
+                if os.path.exists(buff):
 
+                    pdffiles.append(buff)
+
+                else:
+                    self.files_didnt_found.emit()
+
+            if pdffiles:
+
+                runner = PDFRunner.PDFRunner(pdffiles, self.useful_text)
+
+                runner.moveToThread(self.thread)
+                runner.files_didnt_found.connect(self.files_didnt_found)
+                self.thread.started.connect(runner.run)
+
+                self.thread.start()
+
+            else:
+                self.files_didnt_found.emit()
+
+        else:
+            self.directory_didnt_exist.emit()
 
         # self.directory_didnt_exist.emit()
-        #
-        # self.files_didnt_found.emit()
         #
         # self.processing_has_been_completed.emit()
         #
