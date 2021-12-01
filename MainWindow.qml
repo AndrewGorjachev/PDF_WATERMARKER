@@ -1,8 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.3
 
 Window
 {
@@ -135,12 +136,6 @@ Window
             }
         }
     }
-
-    Component.onCompleted:
-    {
-//        controller.ip_has_changed(text_field_watermark.text)
-    }
-
     Connections
     {
         target: controller
@@ -153,6 +148,12 @@ Window
         function onFiles_didnt_found()
         {
             files_didnt_found.open()
+        }
+
+        function onSet_watermark_text_to_view(watrmark_text)
+        {
+            console.log(watrmark_text)
+            text_field_watermark.text = watrmark_text
         }
 
         function onProcessing_has_been_completed(count)
@@ -169,8 +170,10 @@ Window
         }
     }
 
-    FileDialog {
+    FileDialog
+    {
         id: openFileDialog
+        selectFolder: true
         title: "Please choose a folder"
         folder: shortcuts.home
         onAccepted:
