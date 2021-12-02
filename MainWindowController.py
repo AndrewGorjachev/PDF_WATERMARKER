@@ -21,7 +21,7 @@ class MainWindowController(QObject):
 
     set_watermark_text_to_view = Signal(str, arguments=['watrmark_text'])
 
-    useful_text = ['«Trade secret»', 'Horns and Hooves LLC.', 'Neverland, Chernomorsk city']
+    useful_text = ['Trade secret', 'Horns and Hooves LLC.', 'Neverland, Chernomorsk city']
 
     path_to_files = ""
 
@@ -60,13 +60,25 @@ class MainWindowController(QObject):
 
             if pdffiles:
 
-                runner = PDFRunner.PDFRunner(pdffiles, self.useful_text)
+                if self.thread.isRunning():
 
-                runner.moveToThread(self.thread)
-                runner.files_didnt_found.connect(self.files_didnt_found)
-                self.thread.started.connect(runner.run)
+                    self.pleaseWait.emit()
 
-                self.thread.start()
+                else:
+
+                    self.runner = PDFRunner.PDFRunner(pdffiles, self.useful_text)
+
+                    self.runner.moveToThread(self.thread)
+
+                    self.runner.files_didnt_found.connect(self.files_didnt_found)
+
+                    self.runner.finished.connect(self.stop_thread)
+
+                    #self.runner.finished.connect(self.runner.deleteLater())
+
+                    self.thread.started.connect(self.runner.run)
+
+                    self.thread.start()
 
             else:
                 self.files_didnt_found.emit()
@@ -109,3 +121,12 @@ class MainWindowController(QObject):
             self.useful_text[0] + " \n" +
             self.useful_text[1] + " \n" +
             self.useful_text[2])
+
+    @Slot()
+    def stop_thread(self):
+
+        if self.thread:
+
+            self.thread.quit()
+
+            self.thread.wait()
