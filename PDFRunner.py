@@ -1,3 +1,5 @@
+import tempfile
+
 import PyPDF2
 import reportlab
 from PySide2.QtCore import QObject, Signal
@@ -20,6 +22,8 @@ class PDFRunner(QObject):
 
     total_quantity_of_pages = Signal(int, arguments=['total_quantity'])
 
+    rest_of_pages = Signal(int, arguments=['rest_quantity'])
+
     modified_file_name = ""
 
     total_page_quantity = 0;
@@ -32,8 +36,6 @@ class PDFRunner(QObject):
 
         super().__init__()
 
-        self.total_page_quantity = 0;
-
         self.list_of_files = list_of_file
 
         self.watermark_text = watermark_text
@@ -43,6 +45,8 @@ class PDFRunner(QObject):
 
     def run(self):
 
+        self.total_page_quantity = 0;
+
         if not self.list_of_files:
 
             self.files_didnt_found.emit()
@@ -50,11 +54,13 @@ class PDFRunner(QObject):
         else:
 
             for path_to_files in self.list_of_files:
+
                 self.total_page_quantity += PyPDF2.PdfFileReader(path_to_files, 'rb').getNumPages()
 
-            print(self.total_page_quantity);
+            if self.total_page_quantity:
 
-            """
+                self.total_quantity_of_pages.emit(self.total_page_quantity)
+
             with    tempfile.NamedTemporaryFile() as A4_V, \
                     tempfile.NamedTemporaryFile() as A4_H, \
                     tempfile.NamedTemporaryFile() as A3_V, \
@@ -81,14 +87,16 @@ class PDFRunner(QObject):
 
                 for path_to_files in self.list_of_files:
 
-                    print(path_to_files)
-
                     try:
                         pdfReader = PyPDF2.PdfFileReader(path_to_files, 'rb')
 
                         output = PyPDF2.PdfFileWriter()
 
                         for i in range(pdfReader.getNumPages()):
+
+                            self.total_page_quantity -= 1
+
+                            self.rest_of_pages.emit(self.total_page_quantity)
 
                             x = pdfReader.getPage(i).mediaBox.upperRight[0]
 
@@ -130,16 +138,16 @@ class PDFRunner(QObject):
                             else:
                                 self.modified_file_name = path_to_files.replace(".pdf", "_marked.pdf")
 
-                            with open(self.modified_file_name, "wb") as merged_file:
+                        with open(self.modified_file_name, "wb") as merged_file:
 
-                                output.write(merged_file)
+                            output.write(merged_file)
 
-                                self.processing_has_been_completed.emit()
+                            self.processing_has_been_completed.emit()
 
                     except Exception as e:
                         print(e)
                         self.files_didnt_found.emit()
-            """
+
         self.finished.emit()
 
     def create_vertical_a4(self, temp_file_name):

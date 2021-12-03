@@ -156,6 +156,13 @@ Window
             text_field_watermark.text = watrmark_text
         }
 
+        function onProcessing_progress(count)
+        {
+            console.debug(count)
+
+            progress_bar.value = count/100
+        }
+
         function onProcessing_has_been_completed(count)
         {
             processing_has_been_completed.open()

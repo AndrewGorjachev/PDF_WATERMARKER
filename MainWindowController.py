@@ -19,13 +19,17 @@ class MainWindowController(QObject):
 
     error_while_processing = Signal(str, arguments=['file_path'])
 
-    set_watermark_text_to_view = Signal(str, arguments=['watrmark_text'])
+    set_watermark_text_to_view = Signal(str, arguments=['watermark_text'])
+
+    processing_progress = Signal(int,  arguments=['count'])
 
     useful_text = ['Trade secret', 'Horns and Hooves LLC.', 'Neverland, Chernomorsk city']
 
     path_to_files = ""
 
     modified_file_name = ""
+
+    total_quantity_pages = 0
 
     def __init__(self):
 
@@ -74,7 +78,11 @@ class MainWindowController(QObject):
 
                     self.runner.finished.connect(self.stop_thread)
 
-                    #self.runner.finished.connect(self.runner.deleteLater())
+                    self.runner.total_quantity_of_pages.connect(self.total_pages_slot)
+
+                    self.runner.total_quantity_of_pages.connect(self.total_pages_slot)
+
+                    self.runner.rest_of_pages.connect(self.pages_done_slot)
 
                     self.thread.started.connect(self.runner.run)
 
@@ -111,6 +119,20 @@ class MainWindowController(QObject):
 
             with open('watermark.ini', 'w') as configfile:
                 config.write(configfile)
+
+    @Slot(int)
+    def total_pages_slot(self, total_quantity_pages):
+
+        self.total_quantity_pages = total_quantity_pages
+
+#        self.processing_progress.emit(5)
+
+    @Slot(int)
+    def pages_done_slot(self, rest_quantity):
+
+        buff = ((self.total_quantity_pages - rest_quantity)/self.total_quantity_pages )*100
+
+        self.processing_progress.emit(int(buff))
 
     @Slot(str)
     def write__config_file(self):
