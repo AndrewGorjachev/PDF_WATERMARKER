@@ -11,20 +11,21 @@ from reportlab.pdfgen import canvas
 
 
 class PDFRunner(QObject):
+    finished_signal = Signal()
 
-    finished = Signal()
+    processing_completed_signal = Signal()
 
-    files_didnt_found = Signal()
+    wrong_page_format_signal = Signal(str, arguments=['file_path'])
 
-    processing_has_been_completed = Signal()
+    file_not_found_signal = Signal(str, arguments=['file_path'])
 
-    total_quantity_of_pages = Signal(int, arguments=['total_quantity'])
+    total_quantity_of_pages_signal = Signal(int, arguments=['total_quantity'])
 
-    rest_of_pages = Signal(int, arguments=['rest_quantity'])
+    rest_of_pages_signal = Signal(int, arguments=['rest_quantity'])
 
     modified_file_name = ""
 
-    total_page_quantity = 0;
+    total_page_quantity = 0
 
     list_of_files = []
 
@@ -43,21 +44,19 @@ class PDFRunner(QObject):
 
     def run(self):
 
-        self.total_page_quantity = 0;
+        self.total_page_quantity = 0
 
         if not self.list_of_files:
 
-            self.files_didnt_found.emit()
+            self.file_not_found_signal.emit("The file list is empty.")
 
         else:
 
-            for path_to_files in self.list_of_files:
-
-                self.total_page_quantity += PyPDF2.PdfFileReader(path_to_files, 'rb').getNumPages()
+            for path_to_file in self.list_of_files:
+                self.total_page_quantity += PyPDF2.PdfFileReader(path_to_file, 'rb').getNumPages()
 
             if self.total_page_quantity:
-
-                self.total_quantity_of_pages.emit(self.total_page_quantity)
+                self.total_quantity_of_pages_signal.emit(self.total_page_quantity)
 
             with    tempfile.NamedTemporaryFile() as A4_V, \
                     tempfile.NamedTemporaryFile() as A4_H, \
@@ -83,10 +82,10 @@ class PDFRunner(QObject):
                 A3_v_Watermark = A3_V_Reader.getPage(0)
                 A2_H_Watermark = A2_H_Reader.getPage(0)
 
-                for path_to_files in self.list_of_files:
+                for path_to_file in self.list_of_files:
 
                     try:
-                        pdfReader = PyPDF2.PdfFileReader(path_to_files, 'rb')
+                        pdfReader = PyPDF2.PdfFileReader(path_to_file, 'rb')
 
                         output = PyPDF2.PdfFileWriter()
 
@@ -94,7 +93,7 @@ class PDFRunner(QObject):
 
                             self.total_page_quantity -= 1
 
-                            self.rest_of_pages.emit(self.total_page_quantity)
+                            self.rest_of_pages_signal.emit(self.total_page_quantity)
 
                             x = pdfReader.getPage(i).mediaBox.upperRight[0]
 
@@ -123,18 +122,21 @@ class PDFRunner(QObject):
                                 page_to_merge.mergePage(A2_H_Watermark)
 
                             else:
-                                print("unknown page format")
 
-                                print('x=' + str(x) + '  y=' + str(y))
+                                self.wrong_page_format_signal.emit(
+                                    path_to_file + 'page number = ' + str(i) + 'x=' + str(x) + '  y=' + str(y))
 
                                 continue
 
                             output.addPage(page_to_merge)
 
-                            if ".PDF" in path_to_files:
-                                self.modified_file_name = path_to_files.replace(".PDF", "_marked.pdf")
-                            else:
-                                self.modified_file_name = path_to_files.replace(".pdf", "_marked.pdf")
+                        if ".PDF" in path_to_file:
+
+                            self.modified_file_name = path_to_file.replace(".PDF", "_marked.pdf")
+
+                        else:
+
+                            self.modified_file_name = path_to_file.replace(".pdf", "_marked.pdf")
 
                         with open(self.modified_file_name, "wb") as merged_file:
 
@@ -142,11 +144,11 @@ class PDFRunner(QObject):
 
                     except Exception as e:
                         print(e)
-                        self.files_didnt_found.emit()
+                        self.file_not_found_signal.emit(path_to_file)
 
-                self.processing_has_been_completed.emit()
+                self.processing_completed_signal.emit()
 
-        self.finished.emit()
+        self.finished_signal.emit()
 
     def create_vertical_a4(self, temp_file_name):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=A4)

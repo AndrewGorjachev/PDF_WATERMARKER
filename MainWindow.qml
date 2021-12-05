@@ -10,9 +10,9 @@ Window
     id: main_window
     visible: true
     property alias text_field_watermark_line_0: text_field_watermark_line_0
-    width: main_layout.implicitWidth+60
+    width: main_layout.implicitWidth+300
     height: main_layout.implicitHeight
-    minimumWidth: main_layout.implicitWidth+60
+    minimumWidth: main_layout.implicitWidth+300
     minimumHeight: main_layout.implicitHeight
     title: qsTr("PDF WaterMarker")
 
@@ -36,14 +36,27 @@ Window
                 Text
                 {
                     id: text_directory
-                    width: 0
                     text: qsTr("Directory:")
+                    height: text_field_directory.implicitHeight
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                }
+
+                Item
+                {
+                    clip: false
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Rectangle
+                    {
+                        anchors.fill: parent
+                        height: text_directory.height
+                    }
                 }
 
                 Text
@@ -57,6 +70,19 @@ Window
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
+
+                Item
+                {
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Rectangle
+                    {
+                        anchors.fill: parent
+                        height: text_watermark.height
+                    }
+                }
+
             }
 
             ColumnLayout
@@ -66,7 +92,6 @@ Window
                 TextField
                 {
                     id: text_field_directory
-                    width: 400
                     text: "Choose your directory to process"
                     horizontalAlignment: Text.AlignHCenter
                     font.pointSize: 10
@@ -164,17 +189,17 @@ Window
     {
         target: controller
 
-        function onDirectory_didnt_exist()
+        function onDirectory_not_exist_signal()
         {
             directory_didnt_exist.open()
         }
 
-        function onFiles_didnt_found()
+        function onFiles_not_found_signal()
         {
             files_didnt_found.open()
         }
 
-        function onSet_watermark_text_to_view(line_number, watrmark_text)
+        function onSet_watermark_text_to_view_signal(line_number, watrmark_text)
         {
             switch (line_number)
             {
@@ -184,17 +209,17 @@ Window
             }
         }
 
-        function onProcessing_progress(count)
+        function onProcessing_progress_signal(count)
         {
             progress_bar.value = count/100
         }
 
-        function onProcessing_has_been_completed(count)
+        function onProcessing_completed_signal()
         {
             processing_has_been_completed.open()
         }
 
-        function onError_while_processing(file_path)
+        function onError_while_processing_signal(file_path)
         {
             error_while_processing.text = "Error while "+file_path+" processing"
             error_while_processing.open()

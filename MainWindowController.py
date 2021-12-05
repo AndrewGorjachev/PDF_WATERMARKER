@@ -11,19 +11,21 @@ import PDFRunner as PDFRunner
 
 class MainWindowController(QObject):
 
-    directory_didnt_exist = Signal()
+    directory_not_exist_signal = Signal()
 
-    files_didnt_found = Signal()
+    processing_completed_signal = Signal()
 
-    processing_has_been_completed = Signal()
+    files_not_found_signal = Signal()
 
-    error_while_processing = Signal(str, arguments=['file_path'])
+    error_while_processing_signal = Signal(str, arguments=['file_path'])
 
-    set_watermark_text_to_view = Signal(int, str, arguments=['line_number', 'watermark_text'])
+    set_watermark_text_to_view_signal = Signal(int, str, arguments=['line_number',
+                                                                    'watermark_text'])
+    processing_progress_signal = Signal(int, arguments=['count'])
 
-    processing_progress = Signal(int,  arguments=['count'])
-
-    useful_text = ['Trade secret', 'Horns and Hooves LLC.', 'Neverland, Chernomorsk city']
+    useful_text = ['Trade secret',
+                   'Horns and Hooves LLC.',
+                   'Neverland, Chernomorsk city']
 
     path_to_files = ""
 
@@ -60,7 +62,7 @@ class MainWindowController(QObject):
                     pdffiles.append(buff)
 
                 else:
-                    self.files_didnt_found.emit()
+                    self.files_not_found_signal.emit()
 
             if pdffiles:
 
@@ -74,27 +76,27 @@ class MainWindowController(QObject):
 
                     self.runner.moveToThread(self.thread)
 
-                    self.runner.files_didnt_found.connect(self.files_didnt_found)
+                    self.runner.finished_signal.connect(self.stop_thread_slot)
 
-                    self.runner.finished.connect(self.stop_thread)
+                    self.runner.processing_completed_signal.connect(self.processing_completed_slot)
 
-                    self.runner.total_quantity_of_pages.connect(self.total_pages_slot)
+                    self.runner.total_quantity_of_pages_signal.connect(self.total_quantity_of_pages_slot)
 
-                    self.runner.total_quantity_of_pages.connect(self.total_pages_slot)
+                    self.runner.rest_of_pages_signal.connect(self.rest_of_pages_slot)
 
-                    self.runner.rest_of_pages.connect(self.pages_done_slot)
+                    self.runner.file_not_found_signal.connect(self.error_while_file_processing)
 
-                    self.runner.processing_has_been_completed.connect(self.processing_complete)
+                    self.runner.wrong_page_format_signal.connect(self.wrong_page_format_slot)
 
                     self.thread.started.connect(self.runner.run)
 
                     self.thread.start()
 
             else:
-                self.files_didnt_found.emit()
+                self.files_not_found_signal.emit()
 
         else:
-            self.directory_didnt_exist.emit()
+            self.directory_not_exist_signal.emit()
 
     def read_config_file(self):
         config = configparser.ConfigParser()
@@ -116,35 +118,15 @@ class MainWindowController(QObject):
             with open('watermark.ini', 'w') as configfile:
                 config.write(configfile)
 
-    @Slot(int)
-    def total_pages_slot(self, total_quantity_pages):
-
-        self.total_quantity_pages = total_quantity_pages
-
-    @Slot(int)
-    def pages_done_slot(self, rest_quantity):
-
-        buff = ((self.total_quantity_pages - rest_quantity)/self.total_quantity_pages )*100
-
-        self.processing_progress.emit(int(buff))
-
     @Slot(str)
     def write_config_file(self, watermark_text):
-
         if watermark_text:
-
             buff = watermark_text.split('\n')
-
             if buff[0]:
-
                 self.useful_text[0] = buff[0]
-
             if buff[1]:
-
                 self.useful_text[1] = buff[1]
-
             if buff[2]:
-
                 self.useful_text[2] = buff[2]
 
             config = configparser.ConfigParser()
@@ -156,20 +138,38 @@ class MainWindowController(QObject):
             with open('watermark.ini', 'w') as configfile:
                 config.write(configfile)
 
-    @Slot()
-    def processing_complete(self):
-        self.processing_has_been_completed.emit()
-
     def set_config_into_view(self):
-        self.set_watermark_text_to_view.emit(0, self.useful_text[0])
-        self.set_watermark_text_to_view.emit(1, self.useful_text[1])
-        self.set_watermark_text_to_view.emit(2, self.useful_text[2])
+        self.set_watermark_text_to_view_signal.emit(0, self.useful_text[0])
+        self.set_watermark_text_to_view_signal.emit(1, self.useful_text[1])
+        self.set_watermark_text_to_view_signal.emit(2, self.useful_text[2])
+
+    @Slot(int)
+    def total_quantity_of_pages_slot(self, total_quantity_pages):
+        self.total_quantity_pages = total_quantity_pages
+
+    @Slot(int)
+    def rest_of_pages_slot(self, rest_quantity):
+        buff = ((self.total_quantity_pages - rest_quantity)/self.total_quantity_pages)*100
+        self.processing_progress_signal.emit(int(buff))
 
     @Slot()
-    def stop_thread(self):
+    def processing_completed_slot(self):
+        self.processing_completed_signal.emit()
 
+    @Slot()
+    def stop_thread_slot(self):
         if self.thread:
-
             self.thread.quit()
-
             self.thread.wait()
+
+    @Slot(str)
+    def error_while_file_processing(self, file_path):
+        if file_path == "The file list is empty.":
+            self.files_not_found_signal.emit()
+        else:
+            self.error_while_processing_signal.emit(file_path)
+
+    @Slot(str)
+    def wrong_page_format_slot(self, file_path):
+        print(file_path)
+
