@@ -9,6 +9,7 @@ Window
 {
     id: main_window
     visible: true
+    property alias text_field_watermark_line_0: text_field_watermark_line_0
     width: main_layout.implicitWidth+60
     height: main_layout.implicitHeight
     minimumWidth: main_layout.implicitWidth+60
@@ -65,6 +66,7 @@ Window
                 TextField
                 {
                     id: text_field_directory
+                    width: 400
                     text: "Choose your directory to process"
                     horizontalAlignment: Text.AlignHCenter
                     font.pointSize: 10
@@ -84,8 +86,8 @@ Window
 
                 TextField
                 {
-                    id: text_field_watermark
-                    text: "Choose your watermark"
+                    id: text_field_watermark_line_0
+                    text: "Watermark line 0"
                     horizontalAlignment: Text.AlignHCenter
                     font.pointSize: 10
                     Layout.fillHeight: true
@@ -94,8 +96,30 @@ Window
                     selectByMouse: true
                     onEditingFinished:
                     {
-//                        controller.ip_has_changed(text_field_watermark.text)
+                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
                     }
+                }
+
+                TextField {
+                    id: text_field_watermark_line_1
+                    text: "Watermark line 1"
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Text Field")
+                    font.pointSize: 10
+                    selectByMouse: true
+                }
+
+                TextField {
+                    id: text_field_watermark_line_2
+                    text: "Watermark line 2"
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Text Field")
+                    font.pointSize: 10
+                    selectByMouse: true
                 }
             }
 
@@ -115,7 +139,7 @@ Window
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 onClicked:
                 {
-                    controller.process_pdfs(text_field_directory.text, text_field_watermark.text)
+                    controller.process_pdfs(text_field_directory.text, text_field_watermark_line_0.text)
                 }
             }
         }
@@ -150,24 +174,24 @@ Window
             files_didnt_found.open()
         }
 
-        function onSet_watermark_text_to_view(watrmark_text)
+        function onSet_watermark_text_to_view(line_number, watrmark_text)
         {
-            console.log(watrmark_text)
-            text_field_watermark.text = watrmark_text
+            switch (line_number)
+            {
+            case 0: text_field_watermark_line_0.text = watrmark_text; break
+            case 1: text_field_watermark_line_1.text = watrmark_text; break
+            case 2: text_field_watermark_line_2.text = watrmark_text; break
+            }
         }
 
         function onProcessing_progress(count)
         {
-            console.debug(count)
-
             progress_bar.value = count/100
         }
 
         function onProcessing_has_been_completed(count)
         {
             processing_has_been_completed.open()
-//            text_time.text = new Date(count*1000).toLocaleTimeString(Qt.locale(), "mm:" + "ss" )
-//            progress_bar.value = count/(60*12)
         }
 
         function onError_while_processing(file_path)

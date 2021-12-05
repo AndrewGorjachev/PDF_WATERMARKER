@@ -18,8 +18,6 @@ class PDFRunner(QObject):
 
     processing_has_been_completed = Signal()
 
-    page_has_been_completed = Signal()
-
     total_quantity_of_pages = Signal(int, arguments=['total_quantity'])
 
     rest_of_pages = Signal(int, arguments=['rest_quantity'])
@@ -142,11 +140,11 @@ class PDFRunner(QObject):
 
                             output.write(merged_file)
 
-                            self.processing_has_been_completed.emit()
-
                     except Exception as e:
                         print(e)
                         self.files_didnt_found.emit()
+
+                self.processing_has_been_completed.emit()
 
         self.finished.emit()
 

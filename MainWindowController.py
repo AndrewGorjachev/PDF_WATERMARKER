@@ -19,7 +19,7 @@ class MainWindowController(QObject):
 
     error_while_processing = Signal(str, arguments=['file_path'])
 
-    set_watermark_text_to_view = Signal(str, arguments=['watermark_text'])
+    set_watermark_text_to_view = Signal(int, str, arguments=['line_number', 'watermark_text'])
 
     processing_progress = Signal(int,  arguments=['count'])
 
@@ -84,6 +84,8 @@ class MainWindowController(QObject):
 
                     self.runner.rest_of_pages.connect(self.pages_done_slot)
 
+                    self.runner.processing_has_been_completed.connect(self.processing_complete)
+
                     self.thread.started.connect(self.runner.run)
 
                     self.thread.start()
@@ -93,12 +95,6 @@ class MainWindowController(QObject):
 
         else:
             self.directory_didnt_exist.emit()
-
-        # self.directory_didnt_exist.emit()
-        #
-        # self.processing_has_been_completed.emit()
-        #
-        # self.error_while_processing.emit(path_to_directory)
 
     def read_config_file(self):
         config = configparser.ConfigParser()
@@ -125,8 +121,6 @@ class MainWindowController(QObject):
 
         self.total_quantity_pages = total_quantity_pages
 
-#        self.processing_progress.emit(5)
-
     @Slot(int)
     def pages_done_slot(self, rest_quantity):
 
@@ -135,14 +129,41 @@ class MainWindowController(QObject):
         self.processing_progress.emit(int(buff))
 
     @Slot(str)
-    def write__config_file(self):
-        pass
+    def write_config_file(self, watermark_text):
+
+        if watermark_text:
+
+            buff = watermark_text.split('\n')
+
+            if buff[0]:
+
+                self.useful_text[0] = buff[0]
+
+            if buff[1]:
+
+                self.useful_text[1] = buff[1]
+
+            if buff[2]:
+
+                self.useful_text[2] = buff[2]
+
+            config = configparser.ConfigParser()
+            config['watermark'] = {}
+            config['watermark']["str0"] = self.useful_text[0]
+            config['watermark']["str1"] = self.useful_text[1]
+            config['watermark']["str2"] = self.useful_text[2]
+
+            with open('watermark.ini', 'w') as configfile:
+                config.write(configfile)
+
+    @Slot()
+    def processing_complete(self):
+        self.processing_has_been_completed.emit()
 
     def set_config_into_view(self):
-        self.set_watermark_text_to_view.emit(
-            self.useful_text[0] + " \n" +
-            self.useful_text[1] + " \n" +
-            self.useful_text[2])
+        self.set_watermark_text_to_view.emit(0, self.useful_text[0])
+        self.set_watermark_text_to_view.emit(1, self.useful_text[1])
+        self.set_watermark_text_to_view.emit(2, self.useful_text[2])
 
     @Slot()
     def stop_thread(self):
