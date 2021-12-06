@@ -1,5 +1,5 @@
 import QtQuick 2.15
-import QtQuick.Window 2.15
+import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -10,11 +10,20 @@ Window
     id: main_window
     visible: true
     property alias text_field_watermark_line_0: text_field_watermark_line_0
-    width: main_layout.implicitWidth+300
+    width: main_layout.implicitWidth+200
     height: main_layout.implicitHeight
-    minimumWidth: main_layout.implicitWidth+300
+    minimumWidth: main_layout.implicitWidth+200
     minimumHeight: main_layout.implicitHeight
     title: qsTr("PDF WaterMarker")
+
+    property bool closing: false
+
+    onClosing: {
+
+        close.accepted = closing
+
+        onTriggered: if(!closing) exit_message_dialogId.open()
+    }
 
     ColumnLayout
     {
@@ -33,30 +42,30 @@ Window
             ColumnLayout {
                 id: column_left
 
+
+
                 Text
                 {
                     id: text_directory
                     text: qsTr("Directory:")
-                    height: text_field_directory.implicitHeight
+                    font.pixelSize: 20
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                }
+
+                Text {
+                    id: text_empty_1
+                    visible: true
+                    text: qsTr("")
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                }
-
-                Item
-                {
-                    clip: false
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Rectangle
-                    {
-                        anchors.fill: parent
-                        height: text_directory.height
-                    }
                 }
 
                 Text
@@ -71,18 +80,17 @@ Window
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
 
-                Item
-                {
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillWidth: true
+                Text {
+                    id: text_empty_2
+                    visible: true
+                    text: qsTr("")
+                    font.pixelSize: 20
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
-                    Rectangle
-                    {
-                        anchors.fill: parent
-                        height: text_watermark.height
-                    }
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
-
             }
 
             ColumnLayout
@@ -279,5 +287,17 @@ Window
         icon: StandardIcon.Warning
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
+    }
+
+    MessageDialog
+    {
+          id: exit_message_dialogId
+          icon: StandardIcon.Question
+          text: "Are you sure to exit?"
+          standardButtons: StandardButton.Yes | StandardButton.No
+          onYes: {
+             closing = true
+             mainWindowId.close()
+          }
     }
 }
