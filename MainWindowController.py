@@ -13,9 +13,13 @@ class MainWindowController(QObject):
 
     directory_not_exist_signal = Signal()
 
+    processing_started_signal = Signal()
+
     processing_completed_signal = Signal()
 
     files_not_found_signal = Signal()
+
+    file_corrupted_signal = Signal(str, arguments=['file_path'])
 
     error_while_processing_signal = Signal(str, arguments=['file_path'])
 
@@ -88,7 +92,11 @@ class MainWindowController(QObject):
 
                     self.runner.wrong_page_format_signal.connect(self.wrong_page_format_slot)
 
+                    self.runner.file_corrupted_signal.connect(self.file_corrupted_slot)
+
                     self.thread.started.connect(self.runner.run)
+
+                    self.processing_started_signal.emit()
 
                     self.thread.start()
 
@@ -171,5 +179,9 @@ class MainWindowController(QObject):
 
     @Slot(str)
     def wrong_page_format_slot(self, file_path):
-        print(file_path)
 
+        self.error_while_processing_signal.emit(file_path)
+
+    @Slot(str)
+    def file_corrupted_slot(self, file_path):
+        self.file_corrupted_signal.emit(file_path)

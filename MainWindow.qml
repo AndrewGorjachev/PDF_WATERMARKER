@@ -9,20 +9,26 @@ Window
 {
     id: main_window
     visible: true
-    property alias text_field_watermark_line_0: text_field_watermark_line_0
     width: main_layout.implicitWidth+200
     height: main_layout.implicitHeight
     minimumWidth: main_layout.implicitWidth+200
     minimumHeight: main_layout.implicitHeight
     title: qsTr("PDF WaterMarker")
 
-    property bool closing: false
+    property bool thread_is_running: false
 
-    onClosing: {
 
-        close.accepted = closing
+    onClosing:
+    {
+        close.accepted = !thread_is_running
 
-        onTriggered: if(!closing) exit_message_dialogId.open()
+        onTriggered:
+        {
+            if(thread_is_running)
+            {
+                exit_message_dialog_id.open()
+            }
+        }
     }
 
     ColumnLayout
@@ -39,10 +45,9 @@ Window
         {
             id: column_top
 
-            ColumnLayout {
+            ColumnLayout
+            {
                 id: column_left
-
-
 
                 Text
                 {
@@ -56,7 +61,8 @@ Window
                     Layout.fillWidth: true
                 }
 
-                Text {
+                Text
+                {
                     id: text_empty_1
                     visible: true
                     text: qsTr("")
@@ -80,7 +86,8 @@ Window
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
 
-                Text {
+                Text
+                {
                     id: text_empty_2
                     visible: true
                     text: qsTr("")
@@ -133,7 +140,8 @@ Window
                     }
                 }
 
-                TextField {
+                TextField
+                {
                     id: text_field_watermark_line_1
                     text: "Watermark line 1"
                     horizontalAlignment: Text.AlignHCenter
@@ -144,7 +152,8 @@ Window
                     selectByMouse: true
                 }
 
-                TextField {
+                TextField
+                {
                     id: text_field_watermark_line_2
                     text: "Watermark line 2"
                     horizontalAlignment: Text.AlignHCenter
@@ -155,7 +164,6 @@ Window
                     selectByMouse: true
                 }
             }
-
         }
 
         RowLayout
@@ -224,13 +232,24 @@ Window
 
         function onProcessing_completed_signal()
         {
+            thread_is_running = false
             processing_has_been_completed.open()
         }
 
         function onError_while_processing_signal(file_path)
         {
-            error_while_processing.text = "Error while "+file_path+" processing"
+            error_while_processing.text = "Error while processing"+file_path
             error_while_processing.open()
+        }
+        function onProcessing_started_signal()
+        {
+            thread_is_running = true
+        }
+
+        function onFile_corrupted_signal(file_path)
+        {
+            file_corrupted_window.text = "The file could be corrupted or locked: "+file_path
+            file_corrupted_window.open()
         }
     }
 
@@ -291,13 +310,24 @@ Window
 
     MessageDialog
     {
-          id: exit_message_dialogId
-          icon: StandardIcon.Question
-          text: "Are you sure to exit?"
-          standardButtons: StandardButton.Yes | StandardButton.No
-          onYes: {
-             closing = true
-             mainWindowId.close()
-          }
+        id: file_corrupted_window
+        title: "File Open Error"
+        icon: StandardIcon.Warning
+        standardButtons: StandardButton.Ok
+        modality: Qt.WindowModal
+    }
+
+    MessageDialog
+    {
+        id: exit_message_dialog_id
+        title: "Exiting"
+        icon: StandardIcon.Question
+        text: "The files processing isn't completed. Are you sure to exit?"
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes:
+        {
+            thread_is_running = false
+            main_window.close()
+        }
     }
 }

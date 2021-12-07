@@ -19,6 +19,8 @@ class PDFRunner(QObject):
 
     file_not_found_signal = Signal(str, arguments=['file_path'])
 
+    file_corrupted_signal = Signal(str, arguments=['file_path'])
+
     total_quantity_of_pages_signal = Signal(int, arguments=['total_quantity'])
 
     rest_of_pages_signal = Signal(int, arguments=['rest_quantity'])
@@ -52,10 +54,20 @@ class PDFRunner(QObject):
 
         else:
 
+            new_list = []
+
             for path_to_file in self.list_of_files:
-                self.total_page_quantity += PyPDF2.PdfFileReader(path_to_file, 'rb').getNumPages()
+                try:
+                    self.total_page_quantity += PyPDF2.PdfFileReader(path_to_file, 'rb').getNumPages()
+
+                    new_list.append(path_to_file)
+
+                except Exception as e:
+
+                    self.file_corrupted_signal.emit(path_to_file)
 
             if self.total_page_quantity:
+
                 self.total_quantity_of_pages_signal.emit(self.total_page_quantity)
 
             with    tempfile.NamedTemporaryFile() as A4_V, \
@@ -82,7 +94,7 @@ class PDFRunner(QObject):
                 A3_v_Watermark = A3_V_Reader.getPage(0)
                 A2_H_Watermark = A2_H_Reader.getPage(0)
 
-                for path_to_file in self.list_of_files:
+                for path_to_file in new_list:
 
                     try:
                         pdfReader = PyPDF2.PdfFileReader(path_to_file, 'rb')
@@ -124,7 +136,7 @@ class PDFRunner(QObject):
                             else:
 
                                 self.wrong_page_format_signal.emit(
-                                    path_to_file + 'page number = ' + str(i) + 'x=' + str(x) + '  y=' + str(y))
+                                    path_to_file + ' page number = ' + str(i) + ' x=' + str(x) + ' y=' + str(y))
 
                                 continue
 
@@ -250,13 +262,13 @@ class PDFRunner(QObject):
         canvas.drawCentredString(x=1200, y=280, text=self.watermark_text[1])
         canvas.drawCentredString(x=1200, y=260, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1680, y=-520, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1680, y=-540, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1680, y=-560, text=self.watermark_text[2])
+        canvas.drawCentredString(x=1280, y=-520, text=self.watermark_text[0])
+        canvas.drawCentredString(x=1280, y=-540, text=self.watermark_text[1])
+        canvas.drawCentredString(x=1280, y=-560, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1480, y=-120, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1480, y=-140, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1480, y=-160, text=self.watermark_text[2])
+        canvas.drawCentredString(x=1080, y=-120, text=self.watermark_text[0])
+        canvas.drawCentredString(x=1080, y=-140, text=self.watermark_text[1])
+        canvas.drawCentredString(x=1080, y=-160, text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()
