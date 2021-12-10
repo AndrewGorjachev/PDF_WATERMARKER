@@ -1,12 +1,13 @@
 # This Python file uses the following encoding: utf-8
 import sys
-import os
-from MainWindowController import MainWindowController
+import qml_rc
 
 from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
 
-import qml_rc
+from MainWindowController import MainWindowController
+
+VERSION = "1.0"
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
@@ -14,6 +15,9 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty('controller', mainWindowController)
     engine.load(":/MainWindow.qml")
+    app.setApplicationVersion(VERSION)
+    app.setOrganizationName("A_Goryachev")
+    app.setOrganizationDomain("HOME")
 
     if not engine.rootObjects():
         sys.exit(-1)

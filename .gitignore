@@ -81,3 +81,6 @@ qml_rc.py
 *.dll
 *.exe
 *.qrc
+*.pdf
+*.PDF
+
