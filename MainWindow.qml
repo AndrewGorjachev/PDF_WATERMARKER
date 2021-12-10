@@ -13,10 +13,9 @@ Window
     height: main_layout.implicitHeight
     minimumWidth: main_layout.implicitWidth+200
     minimumHeight: main_layout.implicitHeight
-    title: qsTr("PDF WaterMarker")
+    title: qsTr("PDF WaterMarker " + Qt.application.version)
 
     property bool thread_is_running: false
-
 
     onClosing:
     {
@@ -30,7 +29,6 @@ Window
             }
         }
     }
-
     ColumnLayout
     {
         id: main_layout
@@ -60,7 +58,6 @@ Window
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                 }
-
                 Text
                 {
                     id: text_empty_1
@@ -73,7 +70,6 @@ Window
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
-
                 Text
                 {
                     id: text_watermark
@@ -85,7 +81,6 @@ Window
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
-
                 Text
                 {
                     id: text_empty_2
@@ -99,7 +94,6 @@ Window
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
             }
-
             ColumnLayout
             {
                 id: column_right
@@ -123,7 +117,6 @@ Window
                         }
                     }
                 }
-
                 TextField
                 {
                     id: text_field_watermark_line_0
@@ -139,7 +132,6 @@ Window
                         controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
                     }
                 }
-
                 TextField
                 {
                     id: text_field_watermark_line_1
@@ -151,7 +143,6 @@ Window
                     font.pointSize: 10
                     selectByMouse: true
                 }
-
                 TextField
                 {
                     id: text_field_watermark_line_2
@@ -165,7 +156,6 @@ Window
                 }
             }
         }
-
         RowLayout
         {
             id: column_mid
@@ -180,11 +170,10 @@ Window
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 onClicked:
                 {
-                    controller.process_pdfs(text_field_directory.text, text_field_watermark_line_0.text)
+                    controller.process_pdfs(text_field_directory.text)
                 }
             }
         }
-
         RowLayout
         {
             id: column_bot
@@ -209,12 +198,10 @@ Window
         {
             directory_didnt_exist.open()
         }
-
         function onFiles_not_found_signal()
         {
             files_didnt_found.open()
         }
-
         function onSet_watermark_text_to_view_signal(line_number, watrmark_text)
         {
             switch (line_number)
@@ -224,18 +211,15 @@ Window
             case 2: text_field_watermark_line_2.text = watrmark_text; break
             }
         }
-
         function onProcessing_progress_signal(count)
         {
             progress_bar.value = count/100
         }
-
         function onProcessing_completed_signal()
         {
             thread_is_running = false
             processing_has_been_completed.open()
         }
-
         function onError_while_processing_signal(file_path)
         {
             error_while_processing.text = "Error while processing"+file_path
@@ -245,14 +229,12 @@ Window
         {
             thread_is_running = true
         }
-
         function onFile_corrupted_signal(file_path)
         {
             file_corrupted_window.text = "The file could be corrupted or locked: "+file_path
             file_corrupted_window.open()
         }
     }
-
     FileDialog
     {
         id: openFileDialog
@@ -268,7 +250,6 @@ Window
             console.log("Choosing PDF's files source has been canceled!")
         }
     }
-
     MessageDialog
     {
         id: directory_didnt_exist
@@ -278,7 +259,6 @@ Window
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
     }
-
     MessageDialog
     {
         id: files_didnt_found
@@ -288,7 +268,6 @@ Window
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
     }
-
     MessageDialog
     {
         id: processing_has_been_completed
@@ -298,7 +277,6 @@ Window
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
     }
-
     MessageDialog
     {
         id: error_while_processing
@@ -307,7 +285,6 @@ Window
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
     }
-
     MessageDialog
     {
         id: file_corrupted_window
@@ -316,7 +293,6 @@ Window
         standardButtons: StandardButton.Ok
         modality: Qt.WindowModal
     }
-
     MessageDialog
     {
         id: exit_message_dialog_id

@@ -33,8 +33,6 @@ class MainWindowController(QObject):
 
     path_to_files = ""
 
-    modified_file_name = ""
-
     total_quantity_pages = 0
 
     def __init__(self):
@@ -50,14 +48,16 @@ class MainWindowController(QObject):
     def __del__(self):
         pass
 
-    @Slot(str, str)
-    def process_pdfs(self, path_to_directory, watermark_text):
+    @Slot(str)
+    def process_pdfs(self, path_to_directory):
 
         if str(path_to_directory).startswith("file:///"):
 
             pdffiles = []
 
-            for file in glob.glob(path_to_directory.replace("file:///", "") + '/**/*.pdf', recursive=True):
+            self.path_to_files = path_to_directory.replace("file:///", "")
+
+            for file in glob.glob(self.path_to_files + '/**/*.pdf', recursive=True):
 
                 buff = file.replace("\\", '/')
 
@@ -175,13 +175,12 @@ class MainWindowController(QObject):
         if file_path == "The file list is empty.":
             self.files_not_found_signal.emit()
         else:
-            self.error_while_processing_signal.emit(file_path)
+            self.error_while_processing_signal.emit(file_path.replace(self.path_to_files, " .."))
 
     @Slot(str)
     def wrong_page_format_slot(self, file_path):
-
-        self.error_while_processing_signal.emit(file_path)
+        self.error_while_processing_signal.emit(file_path.replace(self.path_to_files, " .."))
 
     @Slot(str)
     def file_corrupted_slot(self, file_path):
-        self.file_corrupted_signal.emit(file_path)
+        self.file_corrupted_signal.emit(file_path.replace(self.path_to_files, " .."))

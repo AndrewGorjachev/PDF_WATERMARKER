@@ -7,12 +7,17 @@ from PySide2.QtQml import QQmlApplicationEngine
 
 from MainWindowController import MainWindowController
 
+VERSION = "1.0"
+
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
     mainWindowController = MainWindowController()
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty('controller', mainWindowController)
     engine.load(":/MainWindow.qml")
+    app.setApplicationVersion(VERSION)
+    app.setOrganizationName("A_Goryachev")
+    app.setOrganizationDomain("HOME")
 
     if not engine.rootObjects():
         sys.exit(-1)
