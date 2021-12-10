@@ -142,6 +142,10 @@ Window
                     placeholderText: qsTr("Text Field")
                     font.pointSize: 10
                     selectByMouse: true
+                    onEditingFinished:
+                    {
+                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                    }
                 }
                 TextField
                 {
@@ -153,6 +157,10 @@ Window
                     placeholderText: qsTr("Text Field")
                     font.pointSize: 10
                     selectByMouse: true
+                    onEditingFinished:
+                    {
+                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                    }
                 }
             }
         }
@@ -170,6 +178,8 @@ Window
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 onClicked:
                 {
+                    controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+
                     controller.process_pdfs(text_field_directory.text)
                 }
             }
