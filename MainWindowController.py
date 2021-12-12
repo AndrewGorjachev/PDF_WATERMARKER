@@ -10,7 +10,6 @@ import PDFRunner as PDFRunner
 
 
 class MainWindowController(QObject):
-
     directory_not_exist_signal = Signal()
 
     processing_started_signal = Signal()
@@ -25,6 +24,8 @@ class MainWindowController(QObject):
 
     set_watermark_text_to_view_signal = Signal(int, str, arguments=['line_number',
                                                                     'watermark_text'])
+    set_watermark_transparency_signal = Signal(int, arguments=['transparency'])
+
     processing_progress_signal = Signal(int, arguments=['count'])
 
     useful_text = ['Trade secret',
@@ -35,6 +36,10 @@ class MainWindowController(QObject):
 
     total_quantity_pages = 0
 
+    transparency = 50
+
+    font_size = 16
+
     def __init__(self):
 
         super().__init__()
@@ -43,7 +48,7 @@ class MainWindowController(QObject):
 
         self.thread = QThread(parent=self)
 
-        QTimer.singleShot(1000, self.set_config_into_view)
+        QTimer.singleShot(500, self.set_config_into_view)
 
     def __del__(self):
         pass
@@ -114,20 +119,16 @@ class MainWindowController(QObject):
                 self.useful_text[0] = config["watermark"]["str0"]
                 self.useful_text[1] = config["watermark"]["str1"]
                 self.useful_text[2] = config["watermark"]["str2"]
+                self.transparency = config['text_property']['transparency']
+                self.font_size = config['text_property']['font_size']
             else:
                 raise Exception('Wrong ini format.')
 
         except Exception as e:
-            config['watermark'] = {}
-            config['watermark']["str0"] = self.useful_text[0]
-            config['watermark']["str1"] = self.useful_text[1]
-            config['watermark']["str2"] = self.useful_text[2]
-
-            with open('watermark.ini', 'w') as configfile:
-                config.write(configfile)
+            self.write_config_file()
 
     @Slot(str)
-    def write_config_file(self, watermark_text):
+    def watermark_slot(self, watermark_text):
         if watermark_text:
             buff = watermark_text.split('\n')
             if buff[0]:
@@ -137,19 +138,25 @@ class MainWindowController(QObject):
             if buff[2]:
                 self.useful_text[2] = buff[2]
 
-            config = configparser.ConfigParser()
-            config['watermark'] = {}
-            config['watermark']["str0"] = self.useful_text[0]
-            config['watermark']["str1"] = self.useful_text[1]
-            config['watermark']["str2"] = self.useful_text[2]
+    @Slot()
+    def write_config_file(self):
+        config = configparser.ConfigParser()
+        config['watermark'] = {}
+        config['watermark']["str0"] = self.useful_text[0]
+        config['watermark']["str1"] = self.useful_text[1]
+        config['watermark']["str2"] = self.useful_text[2]
+        config['text_property'] = {}
+        config['text_property']['transparency'] = str(self.transparency)
+        config['text_property']['font_size'] = str(self.font_size)
 
-            with open('watermark.ini', 'w') as configfile:
-                config.write(configfile)
+        with open('watermark.ini', 'w') as configfile:
+            config.write(configfile)
 
     def set_config_into_view(self):
         self.set_watermark_text_to_view_signal.emit(0, self.useful_text[0])
         self.set_watermark_text_to_view_signal.emit(1, self.useful_text[1])
         self.set_watermark_text_to_view_signal.emit(2, self.useful_text[2])
+        self.set_watermark_transparency_signal.emit(int(self.transparency))
 
     @Slot(int)
     def total_quantity_of_pages_slot(self, total_quantity_pages):
@@ -157,7 +164,7 @@ class MainWindowController(QObject):
 
     @Slot(int)
     def rest_of_pages_slot(self, rest_quantity):
-        buff = ((self.total_quantity_pages - rest_quantity)/self.total_quantity_pages)*100
+        buff = ((self.total_quantity_pages - rest_quantity) / self.total_quantity_pages) * 100
         self.processing_progress_signal.emit(int(buff))
 
     @Slot()
@@ -184,3 +191,12 @@ class MainWindowController(QObject):
     @Slot(str)
     def file_corrupted_slot(self, file_path):
         self.file_corrupted_signal.emit(file_path.replace(self.path_to_files, " .."))
+
+    @Slot(int)
+    def transparency_slot(self, transparency):
+        if transparency != self.transparency:
+            self.transparency = transparency
+
+    @Slot(int)
+    def font_size_slot(self, font_size):
+        print(font_size)
