@@ -44,7 +44,7 @@ class MainWindowController(QObject):
 
     font_size = 16
 
-    is_ini_corrupted = False;
+    is_ini_corrupted = False
 
     def __init__(self):
 
@@ -211,11 +211,9 @@ class MainWindowController(QObject):
     @Slot(int)
     def opacity_slot(self, opacity):
         buf = int(opacity)
-        print(buf)
-        if opacity != buf:
+        if self.opacity != buf:
             self.opacity = buf
 
     @Slot(int)
     def font_size_slot(self, font_size):
         self.font_size = int(font_size)
-        print(self.font_size)

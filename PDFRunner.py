@@ -196,6 +196,7 @@ class PDFRunner(QObject):
         canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
         canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
         canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
+
         canvas.drawCentredString(x=420, y=-100, text=self.watermark_text[0])
         canvas.drawCentredString(x=420, y=-120, text=self.watermark_text[1])
         canvas.drawCentredString(x=420, y=-140, text=self.watermark_text[2])
@@ -212,6 +213,7 @@ class PDFRunner(QObject):
         canvas.drawCentredString(x=420, y=140, text=self.watermark_text[0])
         canvas.drawCentredString(x=420, y=120, text=self.watermark_text[1])
         canvas.drawCentredString(x=420, y=100, text=self.watermark_text[2])
+
         canvas.drawCentredString(x=580, y=-260, text=self.watermark_text[0])
         canvas.drawCentredString(x=580, y=-280, text=self.watermark_text[1])
         canvas.drawCentredString(x=580, y=-300, text=self.watermark_text[2])
