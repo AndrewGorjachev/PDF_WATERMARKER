@@ -10,13 +10,15 @@ import PDFRunner as PDFRunner
 
 
 class MainWindowController(QObject):
-    directory_not_exist_signal = Signal()
+    wrong_ini_signal = Signal()
+
+    files_not_found_signal = Signal()
 
     processing_started_signal = Signal()
 
-    processing_completed_signal = Signal()
+    directory_not_exist_signal = Signal()
 
-    files_not_found_signal = Signal()
+    processing_completed_signal = Signal()
 
     file_corrupted_signal = Signal(str, arguments=['file_path'])
 
@@ -24,7 +26,9 @@ class MainWindowController(QObject):
 
     set_watermark_text_to_view_signal = Signal(int, str, arguments=['line_number',
                                                                     'watermark_text'])
-    set_watermark_transparency_signal = Signal(int, arguments=['transparency'])
+    set_watermark_opacity_signal = Signal(int, arguments=['opacity'])
+
+    set_font_size_signal = Signal(int, arguments=['font_size'])
 
     processing_progress_signal = Signal(int, arguments=['count'])
 
@@ -36,9 +40,11 @@ class MainWindowController(QObject):
 
     total_quantity_pages = 0
 
-    transparency = 50
+    opacity = 50
 
     font_size = 16
+
+    is_ini_corrupted = False;
 
     def __init__(self):
 
@@ -81,7 +87,7 @@ class MainWindowController(QObject):
 
                 else:
 
-                    self.runner = PDFRunner.PDFRunner(pdffiles, self.useful_text)
+                    self.runner = PDFRunner.PDFRunner(pdffiles, self.useful_text, self.opacity, self.font_size)
 
                     self.runner.moveToThread(self.thread)
 
@@ -119,12 +125,20 @@ class MainWindowController(QObject):
                 self.useful_text[0] = config["watermark"]["str0"]
                 self.useful_text[1] = config["watermark"]["str1"]
                 self.useful_text[2] = config["watermark"]["str2"]
-                self.transparency = config['text_property']['transparency']
-                self.font_size = config['text_property']['font_size']
+
+                self.opacity = int(config['text_property']['opacity'])
+
+                self.font_size = int(config['text_property']['font_size'])
+
+                if (self.font_size > 22) and (self.font_size < 10):
+                    self.font_size = 16
             else:
                 raise Exception('Wrong ini format.')
 
         except Exception as e:
+
+            self.is_ini_corrupted = True
+
             self.write_config_file()
 
     @Slot(str)
@@ -146,7 +160,7 @@ class MainWindowController(QObject):
         config['watermark']["str1"] = self.useful_text[1]
         config['watermark']["str2"] = self.useful_text[2]
         config['text_property'] = {}
-        config['text_property']['transparency'] = str(self.transparency)
+        config['text_property']['opacity'] = str(self.opacity)
         config['text_property']['font_size'] = str(self.font_size)
 
         with open('watermark.ini', 'w') as configfile:
@@ -156,7 +170,9 @@ class MainWindowController(QObject):
         self.set_watermark_text_to_view_signal.emit(0, self.useful_text[0])
         self.set_watermark_text_to_view_signal.emit(1, self.useful_text[1])
         self.set_watermark_text_to_view_signal.emit(2, self.useful_text[2])
-        self.set_watermark_transparency_signal.emit(int(self.transparency))
+        self.set_watermark_opacity_signal.emit(int(self.opacity))
+        if self.is_ini_corrupted:
+            self.wrong_ini_signal.emit()
 
     @Slot(int)
     def total_quantity_of_pages_slot(self, total_quantity_pages):
@@ -193,10 +209,13 @@ class MainWindowController(QObject):
         self.file_corrupted_signal.emit(file_path.replace(self.path_to_files, " .."))
 
     @Slot(int)
-    def transparency_slot(self, transparency):
-        if transparency != self.transparency:
-            self.transparency = transparency
+    def opacity_slot(self, opacity):
+        buf = int(opacity)
+        print(buf)
+        if opacity != buf:
+            self.opacity = buf
 
     @Slot(int)
     def font_size_slot(self, font_size):
-        print(font_size)
+        self.font_size = int(font_size)
+        print(self.font_size)

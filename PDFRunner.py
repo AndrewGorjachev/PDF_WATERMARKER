@@ -29,17 +29,25 @@ class PDFRunner(QObject):
 
     total_page_quantity = 0
 
+    opacity = 0.5
+
+    font_size = 16
+
     list_of_files = []
 
     watermark_text = []
 
-    def __init__(self, list_of_file, watermark_text):
+    def __init__(self, list_of_file, watermark_text, opacity, font_size):
 
         super().__init__()
 
         self.list_of_files = list_of_file
 
         self.watermark_text = watermark_text
+
+        self.opacity = opacity/100.0
+
+        self.font_size = font_size
 
     def __del__(self):
         print("runner deleted")
@@ -182,8 +190,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=A4)
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.25)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
         canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
         canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
@@ -198,8 +206,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A4))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
         canvas.drawCentredString(x=420, y=140, text=self.watermark_text[0])
         canvas.drawCentredString(x=420, y=120, text=self.watermark_text[1])
@@ -214,8 +222,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=reportlab.lib.pagesizes.A3)
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
         canvas.drawCentredString(x=840, y=540, text=self.watermark_text[0])
         canvas.drawCentredString(x=840, y=520, text=self.watermark_text[1])
@@ -235,8 +243,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A3))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
         canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
@@ -258,8 +266,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A2))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
         canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
@@ -293,8 +301,8 @@ class PDFRunner(QObject):
         canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=landscape(A2))
         canvas.rotate(45)
         pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
-        canvas.setFont('Arial', 16)
-        font_color = Color(0, 0, 0, alpha=0.5)
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
         canvas.drawCentredString(x=1200, y=800, text=self.watermark_text[0])

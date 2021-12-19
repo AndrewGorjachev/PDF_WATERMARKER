@@ -53,7 +53,7 @@ Window
                     id: text_directory
                     width: 150
                     text: qsTr("Directory:")
-                    font.pixelSize: 20
+                    font.pixelSize: 14
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     wrapMode: Text.WordWrap
@@ -77,7 +77,7 @@ Window
                     id: text_watermark
                     width: 150
                     text: qsTr("Watermark:")
-                    font.pixelSize: 20
+                    font.pixelSize: 14
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     wrapMode: Text.WordWrap
@@ -173,10 +173,10 @@ Window
 
             Text
             {
-                id: transparency_text
+                id: opacity_text
                 width: 140
-                text: qsTr("Transparency:")
-                font.pixelSize: 20
+                text: qsTr("Opacity:")
+                font.pixelSize: 14
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
                 Layout.fillWidth: true
@@ -184,7 +184,9 @@ Window
             }
             Slider
             {
-                id: transparency_slider
+                id: opacity_slider
+                font.weight: Font.Light
+                font.pointSize: 6
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 stepSize : 0.05
@@ -194,6 +196,7 @@ Window
                     {
                         value = 0.05
                     }
+                    opacity_text.opacity = value
                     save_parameters()
                 }
             }
@@ -201,7 +204,7 @@ Window
             Text {
                 id: font_size_text
                 text: qsTr("Font size:")
-                font.pixelSize: 20
+                font.pixelSize: 14
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
                 Layout.fillWidth: true
@@ -211,6 +214,7 @@ Window
 
             ComboBox {
                 id: font_size_comboBox
+                font.pointSize: 10
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -227,6 +231,7 @@ Window
             Button {
                 id: process_pdf1
                 text: qsTr("Process PDF files")
+                font.bold: true
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 font.pointSize: 12
@@ -259,9 +264,9 @@ Window
     {
         controller.watermark_slot(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
 
-        controller.transparency_slot(transparency_slider.value*100)
+        controller.opacity_slot(opacity_slider.value*100)
 
-        controller.font_size_slot(font_size_comboBox.currentText)
+        controller.font_size_slot(font_size_comboBox.textAt(font_size_comboBox.currentIndex))
 
         controller.write_config_file()
     }
@@ -309,11 +314,19 @@ Window
             file_corrupted_window.text = "The file could be corrupted or locked: "+file_path
             file_corrupted_window.open()
         }
-        function onSet_watermark_transparency_signal(transparency)
+        function onSet_watermark_opacity_signal(opacity)
         {
-            transparency_slider.value = transparency/100
+            opacity_slider.value = opacity/100
+            opacity_text.opacity = opacity/100
         }
-
+        function onSet_font_size_signal(font_size)
+        {
+            comboBox.currentText = font_size
+        }
+        function onWrong_ini_signal()
+        {
+            wrong_ini_dialog.open()
+        }
     }
     FileDialog
     {
@@ -385,6 +398,14 @@ Window
             thread_is_running = false
             main_window.close()
         }
+    }
+    MessageDialog
+    {
+        id: wrong_ini_dialog
+        title: "Open ini file error"
+        icon: StandardIcon.Warning
+        text: "Error while opening ini file."
+        standardButtons: StandardButton.Ok
     }
 }
 
