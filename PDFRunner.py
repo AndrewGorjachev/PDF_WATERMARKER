@@ -45,12 +45,64 @@ class PDFRunner(QObject):
 
         self.watermark_text = watermark_text
 
-        self.opacity = opacity/100.0
+        self.opacity = opacity / 100.0
 
         self.font_size = font_size
 
+        self.k = 20
+
+        self.A4_V_X_1 = 600
+        self.A4_V_Y_1 = 300
+        self.A4_V_X_2 = 420
+        self.A4_V_Y_2 = -100
+
+        self.A4_H_X_1 = 420
+        self.A4_H_Y_1 = 140
+        self.A4_H_X_2 = 580
+        self.A4_H_Y_2 = -260
+
+        self.A3_V_X_1 = 840
+        self.A3_V_Y_1 = 540
+        self.A3_V_X_2 = 700
+        self.A3_V_Y_2 = 160
+        self.A3_V_X_3 = 600
+        self.A3_V_Y_3 = -260
+
+        self.A3_H_X_1 = 600
+        self.A3_H_Y_1 = 300
+        self.A3_H_X_2 = 840
+        self.A3_H_Y_2 = -520
+        self.A3_H_X_3 = 740
+        self.A3_H_Y_3 = -120
+
+        self.A2_H_X_1 = 600
+        self.A2_H_Y_1 = 300
+        self.A2_H_X_2 = 840
+        self.A2_H_Y_2 = -520
+        self.A2_H_X_3 = 740
+        self.A2_H_Y_3 = -120
+        self.A2_H_X_4 = 1250
+        self.A2_H_Y_4 = 100
+        self.A2_H_X_5 = 1250
+        self.A2_H_Y_5 = -320
+        self.A2_H_X_6 = 1250
+        self.A2_H_Y_6 = -720
+
+        self.A1_H_X_1 = 1200
+        self.A1_H_Y_1 = 800
+        self.A1_H_X_2 = 1200
+        self.A1_H_Y_2 = 40
+        self.A1_H_X_3 = 1200
+        self.A1_H_Y_3 = -820
+        self.A1_H_X_4 = 450
+        self.A1_H_Y_4 = -60
+        self.A1_H_X_5 = 1900
+        self.A1_H_Y_5 = 20
+        self.A1_H_X_6 = 1900
+        self.A1_H_Y_6 = -860
+
     def __del__(self):
-        print("runner deleted")
+        pass
 
     def run(self):
 
@@ -193,13 +245,14 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', self.font_size)
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
-        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
-        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=420, y=-100, text=self.watermark_text[0])
-        canvas.drawCentredString(x=420, y=-120, text=self.watermark_text[1])
-        canvas.drawCentredString(x=420, y=-140, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A4_V_X_1, y=self.A4_V_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A4_V_X_1, y=(self.A4_V_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A4_V_X_1, y=(self.A4_V_Y_1 - (self.k * 2)), text=self.watermark_text[2])
+
+        canvas.drawCentredString(x=self.A4_V_X_2, y=self.A4_V_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A4_V_X_2, y=(self.A4_V_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A4_V_X_2, y=(self.A4_V_Y_2 - (self.k * 2)), text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -210,13 +263,14 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', self.font_size)
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=420, y=140, text=self.watermark_text[0])
-        canvas.drawCentredString(x=420, y=120, text=self.watermark_text[1])
-        canvas.drawCentredString(x=420, y=100, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=580, y=-260, text=self.watermark_text[0])
-        canvas.drawCentredString(x=580, y=-280, text=self.watermark_text[1])
-        canvas.drawCentredString(x=580, y=-300, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A4_H_X_1, y=self.A4_H_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A4_H_X_1, y=(self.A4_H_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A4_H_X_1, y=(self.A4_H_Y_1 - (self.k * 2)), text=self.watermark_text[2])
+
+        canvas.drawCentredString(x=self.A4_H_X_2, y=self.A4_H_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A4_H_X_2, y=(self.A4_H_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A4_H_X_2, y=(self.A4_H_Y_2 - (self.k * 2)), text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -227,17 +281,18 @@ class PDFRunner(QObject):
         canvas.setFont('Arial', self.font_size)
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
-        canvas.drawCentredString(x=840, y=540, text=self.watermark_text[0])
-        canvas.drawCentredString(x=840, y=520, text=self.watermark_text[1])
-        canvas.drawCentredString(x=840, y=500, text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=700, y=160, text=self.watermark_text[0])
-        canvas.drawCentredString(x=700, y=140, text=self.watermark_text[1])
-        canvas.drawCentredString(x=700, y=120, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A3_V_X_1, y=self.A3_V_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_V_X_1, y=(self.A3_V_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_V_X_1, y=(self.A3_V_Y_1 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=600, y=-260, text=self.watermark_text[0])
-        canvas.drawCentredString(x=600, y=-280, text=self.watermark_text[1])
-        canvas.drawCentredString(x=600, y=-300, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A3_V_X_2, y=self.A3_V_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_V_X_2, y=(self.A3_V_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_V_X_2, y=(self.A3_V_Y_2 - (self.k * 2)), text=self.watermark_text[2])
+
+        canvas.drawCentredString(x=self.A3_V_X_3, y=self.A3_V_Y_3, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_V_X_3, y=(self.A3_V_Y_3 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_V_X_3, y=(self.A3_V_Y_3 - (self.k * 2)), text=self.watermark_text[2])
         canvas.showPage()
         canvas.save()
 
@@ -249,17 +304,17 @@ class PDFRunner(QObject):
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
-        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
-        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
-        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A3_H_X_1, y=self.A3_H_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_H_X_1, y=(self.A3_H_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_H_X_1, y=(self.A3_H_Y_1 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=840, y=-520, text=self.watermark_text[0])
-        canvas.drawCentredString(x=840, y=-540, text=self.watermark_text[1])
-        canvas.drawCentredString(x=840, y=-560, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A3_H_X_2, y=self.A3_H_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_H_X_2, y=(self.A3_H_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_H_X_2, y=(self.A3_H_Y_2 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=740, y=-120, text=self.watermark_text[0])
-        canvas.drawCentredString(x=740, y=-140, text=self.watermark_text[1])
-        canvas.drawCentredString(x=740, y=-160, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A3_H_X_3, y=self.A3_H_Y_3, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A3_H_X_3, y=(self.A3_H_Y_3 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A3_H_X_3, y=(self.A3_H_Y_3 - (self.k * 2)), text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()
@@ -272,29 +327,29 @@ class PDFRunner(QObject):
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
-        canvas.drawCentredString(x=600, y=300, text=self.watermark_text[0])
-        canvas.drawCentredString(x=600, y=280, text=self.watermark_text[1])
-        canvas.drawCentredString(x=600, y=260, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_1, y=self.A2_H_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_1, y=(self.A2_H_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_1, y=(self.A2_H_Y_1 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=840, y=-520, text=self.watermark_text[0])
-        canvas.drawCentredString(x=840, y=-540, text=self.watermark_text[1])
-        canvas.drawCentredString(x=840, y=-560, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_2, y=self.A2_H_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_2, y=(self.A2_H_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_2, y=(self.A2_H_Y_2 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=740, y=-120, text=self.watermark_text[0])
-        canvas.drawCentredString(x=740, y=-140, text=self.watermark_text[1])
-        canvas.drawCentredString(x=740, y=-160, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_3, y=self.A2_H_Y_3, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_3, y=(self.A2_H_Y_3 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_3, y=(self.A2_H_Y_3 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1250, y=100, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1250, y=80, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1250, y=60, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_4, y=self.A2_H_Y_4, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_4, y=(self.A2_H_Y_4 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_4, y=(self.A2_H_Y_4 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1250, y=-320, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1250, y=-340, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1250, y=-360, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_5, y=self.A2_H_Y_5, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_5, y=(self.A2_H_Y_5 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_5, y=(self.A2_H_Y_5 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1250, y=-720, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1250, y=-740, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1250, y=-760, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A2_H_X_6, y=self.A2_H_Y_6, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A2_H_X_6, y=(self.A2_H_Y_6 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A2_H_X_6, y=(self.A2_H_Y_6 - (self.k * 2)), text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()
@@ -307,29 +362,29 @@ class PDFRunner(QObject):
         font_color = Color(0, 0, 0, alpha=self.opacity)
         canvas.setFillColor(font_color)
 
-        canvas.drawCentredString(x=1200, y=800, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1200, y=780, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1200, y=760, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_1, y=self.A1_H_Y_1, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_1, y=(self.A1_H_Y_1 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_1, y=(self.A1_H_Y_1 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1200, y=40, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1200, y=20, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1200, y=0, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_2, y=self.A1_H_Y_2, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_2, y=(self.A1_H_Y_2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_2, y=(self.A1_H_Y_2 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1200, y=-820, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1200, y=-840, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1200, y=-860, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_3, y=self.A1_H_Y_3, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_3, y=(self.A1_H_Y_3 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_1, y=(self.A1_H_Y_3 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=450, y=-60, text=self.watermark_text[0])
-        canvas.drawCentredString(x=450, y=-80, text=self.watermark_text[1])
-        canvas.drawCentredString(x=450, y=-100, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_4, y=self.A1_H_Y_4, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_4, y=(self.A1_H_Y_4 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_4, y=(self.A1_H_Y_4 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1900, y=20, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1900, y=0, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1900, y=-20, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_5, y=self.A1_H_Y_5, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_5, y=(self.A1_H_Y_5 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_5, y=(self.A1_H_Y_5 - (self.k * 2)), text=self.watermark_text[2])
 
-        canvas.drawCentredString(x=1900, y=-860, text=self.watermark_text[0])
-        canvas.drawCentredString(x=1900, y=-880, text=self.watermark_text[1])
-        canvas.drawCentredString(x=1900, y=-900, text=self.watermark_text[2])
+        canvas.drawCentredString(x=self.A1_H_X_6, y=self.A1_H_Y_6, text=self.watermark_text[0])
+        canvas.drawCentredString(x=self.A1_H_X_6, y=(self.A1_H_Y_6 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=self.A1_H_X_6, y=(self.A1_H_Y_6 - (self.k * 2)), text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()
