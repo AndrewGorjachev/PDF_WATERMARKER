@@ -38,6 +38,7 @@ Thumbs.db
 *.rc
 /.qmake.cache
 /.qmake.stash
+Test/
 build/
 .idea/
 main.pyproject.user
@@ -83,4 +84,5 @@ qml_rc.py
 *.qrc
 *.pdf
 *.PDF
+*.ini
 

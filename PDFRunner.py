@@ -35,71 +35,75 @@ class PDFRunner(QObject):
 
     list_of_files = []
 
-    watermark_text = []
+    watermark_text = [" ", " ", " "]
 
-    def __init__(self, list_of_file, watermark_text, opacity, font_size):
+    def __init__(self, list_of_file, current_configuration):
 
         super().__init__()
 
         self.list_of_files = list_of_file
 
-        self.watermark_text = watermark_text
+        self.watermark_text[0] = current_configuration['str0']
 
-        self.opacity = opacity / 100.0
+        self.watermark_text[1] = current_configuration["str1"]
 
-        self.font_size = font_size
+        self.watermark_text[2] = current_configuration["str2"]
 
-        self.k = 20
+        self.opacity = current_configuration["opacity"] / 100.0
 
-        self.A4_V_X_1 = 600
-        self.A4_V_Y_1 = 300
-        self.A4_V_X_2 = 420
-        self.A4_V_Y_2 = -100
+        self.font_size = current_configuration["font_size"]
 
-        self.A4_H_X_1 = 420
-        self.A4_H_Y_1 = 140
-        self.A4_H_X_2 = 580
-        self.A4_H_Y_2 = -260
+        self.k = current_configuration['font_coefficient']
 
-        self.A3_V_X_1 = 840
-        self.A3_V_Y_1 = 540
-        self.A3_V_X_2 = 700
-        self.A3_V_Y_2 = 160
-        self.A3_V_X_3 = 600
-        self.A3_V_Y_3 = -260
+        self.A4_V_X_1 = current_configuration["A4_V_X_1"]
+        self.A4_V_Y_1 = current_configuration["A4_V_Y_1"]
+        self.A4_V_X_2 = current_configuration["A4_V_X_2"]
+        self.A4_V_Y_2 = current_configuration["A4_V_Y_2"]
 
-        self.A3_H_X_1 = 600
-        self.A3_H_Y_1 = 300
-        self.A3_H_X_2 = 840
-        self.A3_H_Y_2 = -520
-        self.A3_H_X_3 = 740
-        self.A3_H_Y_3 = -120
+        self.A4_H_X_1 = current_configuration["A4_H_X_1"]
+        self.A4_H_Y_1 = current_configuration["A4_H_Y_1"]
+        self.A4_H_X_2 = current_configuration["A4_H_X_2"]
+        self.A4_H_Y_2 = current_configuration["A4_H_Y_2"]
 
-        self.A2_H_X_1 = 600
-        self.A2_H_Y_1 = 300
-        self.A2_H_X_2 = 840
-        self.A2_H_Y_2 = -520
-        self.A2_H_X_3 = 740
-        self.A2_H_Y_3 = -120
-        self.A2_H_X_4 = 1250
-        self.A2_H_Y_4 = 100
-        self.A2_H_X_5 = 1250
-        self.A2_H_Y_5 = -320
-        self.A2_H_X_6 = 1250
-        self.A2_H_Y_6 = -720
+        self.A3_V_X_1 = current_configuration["A3_V_X_1"]
+        self.A3_V_Y_1 = current_configuration["A3_V_Y_1"]
+        self.A3_V_X_2 = current_configuration["A3_V_X_2"]
+        self.A3_V_Y_2 = current_configuration["A3_V_Y_2"]
+        self.A3_V_X_3 = current_configuration["A3_V_X_3"]
+        self.A3_V_Y_3 = current_configuration["A3_V_Y_3"]
 
-        self.A1_H_X_1 = 1200
-        self.A1_H_Y_1 = 800
-        self.A1_H_X_2 = 1200
-        self.A1_H_Y_2 = 40
-        self.A1_H_X_3 = 1200
-        self.A1_H_Y_3 = -820
-        self.A1_H_X_4 = 450
-        self.A1_H_Y_4 = -60
-        self.A1_H_X_5 = 1900
-        self.A1_H_Y_5 = 20
-        self.A1_H_X_6 = 1900
-        self.A1_H_Y_6 = -860
+        self.A3_H_X_1 = current_configuration["A3_H_X_1"]
+        self.A3_H_Y_1 = current_configuration["A3_H_Y_1"]
+        self.A3_H_X_2 = current_configuration["A3_H_X_2"]
+        self.A3_H_Y_2 = current_configuration["A3_H_Y_2"]
+        self.A3_H_X_3 = current_configuration["A3_H_X_3"]
+        self.A3_H_Y_3 = current_configuration["A3_H_Y_3"]
+
+        self.A2_H_X_1 = current_configuration["A2_H_X_1"]
+        self.A2_H_Y_1 = current_configuration["A2_H_Y_1"]
+        self.A2_H_X_2 = current_configuration["A2_H_X_2"]
+        self.A2_H_Y_2 = current_configuration["A2_H_Y_2"]
+        self.A2_H_X_3 = current_configuration["A2_H_X_3"]
+        self.A2_H_Y_3 = current_configuration["A2_H_Y_3"]
+        self.A2_H_X_4 = current_configuration["A2_H_X_4"]
+        self.A2_H_Y_4 = current_configuration["A2_H_Y_4"]
+        self.A2_H_X_5 = current_configuration["A2_H_X_5"]
+        self.A2_H_Y_5 = current_configuration["A2_H_Y_5"]
+        self.A2_H_X_6 = current_configuration["A2_H_X_6"]
+        self.A2_H_Y_6 = current_configuration["A2_H_Y_6"]
+
+        self.A1_H_X_1 = current_configuration["A1_H_X_1"]
+        self.A1_H_Y_1 = current_configuration["A1_H_Y_1"]
+        self.A1_H_X_2 = current_configuration["A1_H_X_2"]
+        self.A1_H_Y_2 = current_configuration["A1_H_Y_2"]
+        self.A1_H_X_3 = current_configuration["A1_H_X_3"]
+        self.A1_H_Y_3 = current_configuration["A1_H_Y_3"]
+        self.A1_H_X_4 = current_configuration["A1_H_X_4"]
+        self.A1_H_Y_4 = current_configuration["A1_H_Y_4"]
+        self.A1_H_X_5 = current_configuration["A1_H_X_5"]
+        self.A1_H_Y_5 = current_configuration["A1_H_Y_5"]
+        self.A1_H_X_6 = current_configuration["A1_H_X_6"]
+        self.A1_H_Y_6 = current_configuration["A1_H_Y_6"]
 
     def __del__(self):
         pass

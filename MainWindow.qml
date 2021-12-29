@@ -319,13 +319,18 @@ Window
             opacity_slider.value = opacity/100
             opacity_text.opacity = opacity/100
         }
-        function onSet_font_size_signal(font_size)
+        function onSet_font_size_signal(index)
         {
-            comboBox.currentText = font_size
+            console.log(index)
+            font_size_comboBox.currentIndex = index
         }
         function onWrong_ini_signal()
         {
             wrong_ini_dialog.open()
+        }
+        function onPlease_wait_signal()
+        {
+            process_hasn_t_been_completed_dialog.open()
         }
     }
     FileDialog
@@ -405,6 +410,14 @@ Window
         title: "Open ini file error"
         icon: StandardIcon.Warning
         text: "Error while opening ini file."
+        standardButtons: StandardButton.Ok
+    }
+    MessageDialog
+    {
+        id:  process_hasn_t_been_completed_dialog
+        title: "Please wait"
+        icon: StandardIcon.Warning
+        text: "The process hasn't been completed."
         standardButtons: StandardButton.Ok
     }
 }
