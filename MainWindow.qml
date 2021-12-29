@@ -9,9 +9,10 @@ Window
 {
     id: main_window
     visible: true
-    width: main_layout.implicitWidth+200
+    property alias row_bot: row_bot
+    width: main_layout.implicitWidth
     height: main_layout.implicitHeight
-    minimumWidth: main_layout.implicitWidth+200
+    minimumWidth: main_layout.implicitWidth
     minimumHeight: main_layout.implicitHeight
     title: qsTr("PDF WaterMarker " + Qt.application.version)
 
@@ -41,7 +42,7 @@ Window
 
         RowLayout
         {
-            id: column_top
+            id: row_top
 
             ColumnLayout
             {
@@ -50,48 +51,50 @@ Window
                 Text
                 {
                     id: text_directory
+                    width: 150
                     text: qsTr("Directory:")
-                    font.pixelSize: 20
+                    font.pixelSize: 14
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    wrapMode: Text.WordWrap
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
+                    Layout.fillWidth: false
                 }
                 Text
                 {
                     id: text_empty_1
+                    width: 150
                     visible: true
                     text: qsTr("")
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: false
                 }
                 Text
                 {
                     id: text_watermark
+                    width: 150
                     text: qsTr("Watermark:")
-                    font.pixelSize: 20
+                    font.pixelSize: 14
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
+                    wrapMode: Text.WordWrap
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: false
                 }
                 Text
                 {
                     id: text_empty_2
+                    width: 150
                     visible: true
                     text: qsTr("")
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: false
                 }
             }
             ColumnLayout
@@ -125,11 +128,11 @@ Window
                     font.pointSize: 10
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    placeholderText: qsTr("Text Field")
+                    placeholderText: qsTr("Watermark line 0")
                     selectByMouse: true
                     onEditingFinished:
                     {
-                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                        save_parameters()
                     }
                 }
                 TextField
@@ -139,12 +142,12 @@ Window
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    placeholderText: qsTr("Text Field")
+                    placeholderText: qsTr("Watermark line 1")
                     font.pointSize: 10
                     selectByMouse: true
                     onEditingFinished:
                     {
-                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                        save_parameters()
                     }
                 }
                 TextField
@@ -154,31 +157,88 @@ Window
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    placeholderText: qsTr("Text Field")
+                    placeholderText: qsTr("Watermark line 2")
                     font.pointSize: 10
                     selectByMouse: true
                     onEditingFinished:
                     {
-                        controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                        save_parameters()
                     }
                 }
             }
         }
         RowLayout
         {
-            id: column_mid
+            id: row_mid_0
 
-            Button
+            Text
             {
-                id: process_pdf
-                text: qsTr("Process PDF files")
-                font.pointSize: 12
-                Layout.fillHeight: true
+                id: opacity_text
+                width: 140
+                text: qsTr("Opacity:")
+                font.pixelSize: 14
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
                 Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+            Slider
+            {
+                id: opacity_slider
+                font.weight: Font.Light
+                font.pointSize: 6
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                stepSize : 0.05
+                onMoved:
+                {
+                    if (value == 0)
+                    {
+                        value = 0.05
+                    }
+                    opacity_text.opacity = value
+                    save_parameters()
+                }
+            }
+
+            Text {
+                id: font_size_text
+                text: qsTr("Font size:")
+                font.pixelSize: 14
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            }
+
+            ComboBox {
+                id: font_size_comboBox
+                font.pointSize: 10
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                currentIndex: 3
+                model: ["10", "12", "14", "16", "18", "20", "22"]
+                onCurrentIndexChanged:
+                {
+                    save_parameters()
+                }
+            }
+        }
+        RowLayout {
+            id: row_mid_1
+            Button {
+                id: process_pdf1
+                text: qsTr("Process PDF files")
+                font.bold: true
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                font.pointSize: 12
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 onClicked:
                 {
-                    controller.write_config_file(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+                    save_parameters()
 
                     controller.process_pdfs(text_field_directory.text)
                 }
@@ -186,7 +246,7 @@ Window
         }
         RowLayout
         {
-            id: column_bot
+            id: row_bot
             visible: true
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -199,6 +259,16 @@ Window
                 value: 0
             }
         }
+    }
+    function save_parameters()
+    {
+        controller.watermark_slot(text_field_watermark_line_0.text + "\n" +text_field_watermark_line_1.text + "\n" +text_field_watermark_line_2.text)
+
+        controller.opacity_slot(opacity_slider.value*100)
+
+        controller.font_size_slot(font_size_comboBox.textAt(font_size_comboBox.currentIndex))
+
+        controller.write_config_file()
     }
     Connections
     {
@@ -243,6 +313,24 @@ Window
         {
             file_corrupted_window.text = "The file could be corrupted or locked: "+file_path
             file_corrupted_window.open()
+        }
+        function onSet_watermark_opacity_signal(opacity)
+        {
+            opacity_slider.value = opacity/100
+            opacity_text.opacity = opacity/100
+        }
+        function onSet_font_size_signal(index)
+        {
+            console.log(index)
+            font_size_comboBox.currentIndex = index
+        }
+        function onWrong_ini_signal()
+        {
+            wrong_ini_dialog.open()
+        }
+        function onPlease_wait_signal()
+        {
+            process_hasn_t_been_completed_dialog.open()
         }
     }
     FileDialog
@@ -316,4 +404,22 @@ Window
             main_window.close()
         }
     }
+    MessageDialog
+    {
+        id: wrong_ini_dialog
+        title: "Open ini file error"
+        icon: StandardIcon.Warning
+        text: "Error while opening ini file."
+        standardButtons: StandardButton.Ok
+    }
+    MessageDialog
+    {
+        id:  process_hasn_t_been_completed_dialog
+        title: "Please wait"
+        icon: StandardIcon.Warning
+        text: "The process hasn't been completed."
+        standardButtons: StandardButton.Ok
+    }
 }
+
+
