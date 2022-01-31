@@ -218,7 +218,15 @@ class PDFRunner(QObject):
                                 self.wrong_page_format_signal.emit(
                                     path_to_file + ' at page number = ' + str(i) + ' x=' + str(x) + ' y=' + str(y))
 
-                                continue
+                                with tempfile.NamedTemporaryFile() as weird_format:
+
+                                    self.create_centered_format(weird_format, x, y)
+
+                                    weird_reader = PyPDF2.PdfFileReader(weird_format, 'rb')
+
+                                    weird_format_watermark = weird_reader.getPage(0)
+
+                                    page_to_merge.mergePage(weird_format_watermark)
 
                             output.addPage(page_to_merge)
 
@@ -235,6 +243,8 @@ class PDFRunner(QObject):
                             output.write(merged_file)
 
                     except Exception as e:
+
+                        print(e)
 
                         self.file_not_found_signal.emit(path_to_file)
 
@@ -389,6 +399,21 @@ class PDFRunner(QObject):
         canvas.drawCentredString(x=self.A1_H_X_6, y=self.A1_H_Y_6, text=self.watermark_text[0])
         canvas.drawCentredString(x=self.A1_H_X_6, y=(self.A1_H_Y_6 - self.k), text=self.watermark_text[1])
         canvas.drawCentredString(x=self.A1_H_X_6, y=(self.A1_H_Y_6 - (self.k * 2)), text=self.watermark_text[2])
+
+        canvas.showPage()
+        canvas.save()
+
+    def create_centered_format(self, temp_file_name, x, y):
+        canvas = reportlab.pdfgen.canvas.Canvas(temp_file_name, pagesize=(x, y))
+
+        pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
+        canvas.setFont('Arial', self.font_size)
+        font_color = Color(0, 0, 0, alpha=self.opacity)
+        canvas.setFillColor(font_color)
+
+        canvas.drawCentredString(x=int(x/2), y=int(y/2), text=self.watermark_text[0])
+        canvas.drawCentredString(x=int(x/2), y=int(y/2 - self.k), text=self.watermark_text[1])
+        canvas.drawCentredString(x=int(x/2), y=int(y/2 - (self.k * 2)), text=self.watermark_text[2])
 
         canvas.showPage()
         canvas.save()
