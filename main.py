@@ -8,7 +8,7 @@ from PySide2.QtQml import QQmlApplicationEngine
 
 from MainWindowController import MainWindowController
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
