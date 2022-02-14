@@ -189,23 +189,23 @@ class PDFRunner(QObject):
 
                             page_to_merge = pdfReader.getPage(i)
 
-                            if ((int(x) >= 1190) and (int(x) <= 1200)) and ((int(y) >= 840) and (int(y) <= 850)):
+                            if ((int(x) >= 1110) and (int(x) <= 1200)) and ((int(y) >= 790) and (int(y) <= 850)):
 
                                 page_to_merge.mergePage(A3_H_Watermark)
 
-                            elif ((int(x) >= 590) and (int(x) <= 600)) and ((int(y) >= 840) and (int(y) <= 850)):
+                            elif ((int(x) >= 540) and (int(x) <= 600)) and ((int(y) >= 790) and (int(y) <= 850)):
 
                                 page_to_merge.mergePage(A4_v_Watermark)
 
-                            elif ((int(x) >= 840) and (int(x) <= 850)) and ((int(y) >= 590) and (int(y) <= 600)):
+                            elif ((int(x) >= 790) and (int(x) <= 850)) and ((int(y) >= 540) and (int(y) <= 600)):
 
                                 page_to_merge.mergePage(A4_H_Watermark)
 
-                            elif ((int(x) >= 840) and (int(x) <= 850)) and ((int(y) >= 1190) and (int(y) <= 1200)):
+                            elif ((int(x) >= 790) and (int(x) <= 850)) and ((int(y) >= 1110) and (int(y) <= 1200)):
 
                                 page_to_merge.mergePage(A3_v_Watermark)
 
-                            elif ((int(x) >= 1680) and (int(x) <= 1690)) and ((int(y) >= 1190) and (int(y) <= 1200)):
+                            elif ((int(x) >= 1680) and (int(x) <= 1690)) and ((int(y) >= 1110) and (int(y) <= 1200)):
 
                                 page_to_merge.mergePage(A2_H_Watermark)
 
